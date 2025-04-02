@@ -5,10 +5,17 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
+<<<<<<< HEAD
 		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ufrn.imd</groupId>
+=======
+		<version>3.4.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.projeto</groupId>
+>>>>>>> 60a1e363cb50b294d94a8ee1281cfaf19402c824
 	<artifactId>diretoriadeprojetos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>diretoriadeprojetos</name>
@@ -27,7 +34,11 @@
 		<url/>
 	</scm>
 	<properties>
+<<<<<<< HEAD
 		<java.version>24</java.version>
+=======
+		<java.version>23</java.version>
+>>>>>>> 60a1e363cb50b294d94a8ee1281cfaf19402c824
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,7 +49,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
+=======
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.3</version> <!-- Verifique se há uma versão mais recente -->
+</dependency>
+>>>>>>> 60a1e363cb50b294d94a8ee1281cfaf19402c824
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
