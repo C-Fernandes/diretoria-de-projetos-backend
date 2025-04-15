@@ -2,6 +2,9 @@ package com.ufrn.imd.diretoriadeprojetos.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,11 +21,19 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Coordenador {
     @Id
+    @JsonProperty("matricula")
     private String matricula;
 
-    private String nome;
-    @OneToMany(mappedBy = "coordenador", cascade = CascadeType.ALL)
-    private List<Projeto> projetos;
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("email")
     private String email;
-    private String UnidadeAcademica;
+
+    @JsonProperty("unidadeAcademica")
+    private String unidadeAcademica;
+
+    @OneToMany(mappedBy = "coordenador", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Projeto> projetos;
 }
