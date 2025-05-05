@@ -30,7 +30,7 @@ public class ParceiroService {
 
     public Parceiro update(UUID id, Parceiro parceiroAtualizado) {
         return parceiroRepository.findById(id).map(parceiro -> {
-            parceiro.setParceiro(parceiroAtualizado.getParceiro());
+            parceiro.setNome(parceiroAtualizado.getNome());
             parceiro.setTipoFinanciamento(parceiroAtualizado.getTipoFinanciamento());
             parceiro.setProjetos(parceiroAtualizado.getProjetos());
             return parceiroRepository.save(parceiro);

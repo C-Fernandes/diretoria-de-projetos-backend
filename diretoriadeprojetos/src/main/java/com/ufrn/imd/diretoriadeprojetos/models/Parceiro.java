@@ -28,7 +28,7 @@ public class Parceiro {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private String parceiro;
+    private String nome;
 
     @Enumerated(EnumType.STRING)
     private TipoFinanciamento tipoFinanciamento;
