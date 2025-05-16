@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -24,8 +25,14 @@ public class Projeto {
     @Id
     private String nSipac;
     private String nFunpec;
+    @Column(nullable = false)
+
+    private String titulo;
+    @Column(nullable = false)
     private Boolean sebrae, embrapii, leiDeInformatica;
+    @Column(nullable = false)
     private double valor;
+    @Column(nullable = false)
     private Date dataInicio;
     @ManyToOne
     @JoinColumn(name = "coordenador_matricula", nullable = false)
@@ -34,7 +41,9 @@ public class Projeto {
     @ManyToOne
     @JoinColumn(name = "parceiro_id", nullable = false)
     private Parceiro parceiro;
+    @Column(nullable = false)
     private Date dataFim;
+    @Column(nullable = false)
     private String contaContrato;
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)

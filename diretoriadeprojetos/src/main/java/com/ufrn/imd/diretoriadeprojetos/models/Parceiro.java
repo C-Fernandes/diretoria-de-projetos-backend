@@ -3,6 +3,7 @@ package com.ufrn.imd.diretoriadeprojetos.models;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 
 import jakarta.persistence.CascadeType;
@@ -32,7 +33,7 @@ public class Parceiro {
 
     @Enumerated(EnumType.STRING)
     private TipoFinanciamento tipoFinanciamento;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "parceiro", cascade = CascadeType.ALL)
     private List<Projeto> projetos;
 }

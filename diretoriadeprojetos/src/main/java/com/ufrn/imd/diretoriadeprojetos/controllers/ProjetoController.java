@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.ProjetoDTO;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.services.CoordenadorService;
+import com.ufrn.imd.diretoriadeprojetos.services.ParceiroService;
 import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
 
 @RestController
@@ -22,6 +25,12 @@ import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
 public class ProjetoController {
     @Autowired
     private ProjetoService projetoService;
+
+    @Autowired
+    private CoordenadorService coordenadorService;
+
+    @Autowired
+    private ParceiroService parceiroService;
 
     @GetMapping
     public List<Projeto> listarTodos() {
@@ -34,8 +43,9 @@ public class ProjetoController {
     }
 
     @PostMapping
-    public ResponseEntity<Projeto> criar(@RequestBody Projeto projeto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projeto));
+    public ResponseEntity<Projeto> criar(@RequestBody ProjetoDTO projetoDTO) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projetoDTO));
     }
 
     @PutMapping("/{nSipac}")

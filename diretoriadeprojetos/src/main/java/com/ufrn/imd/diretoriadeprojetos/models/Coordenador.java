@@ -2,6 +2,8 @@ package com.ufrn.imd.diretoriadeprojetos.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,6 +23,7 @@ public class Coordenador {
     private String matricula;
 
     private String nome;
+    @JsonIgnore
     @OneToMany(mappedBy = "coordenador", cascade = CascadeType.ALL)
     private List<Projeto> projetos;
     private String email;

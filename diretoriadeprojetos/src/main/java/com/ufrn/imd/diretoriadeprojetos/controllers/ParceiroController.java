@@ -43,11 +43,9 @@ public class ParceiroController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Parceiro> update(@PathVariable UUID id, @RequestBody Parceiro parceiro) {
-        try {
-            return ResponseEntity.ok(parceiroService.update(id, parceiro));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+
+        return ResponseEntity.ok(parceiroService.update(id, parceiro));
+
     }
 
     @DeleteMapping("/{id}")
