@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Arquivo com segredos (não enviar ao Git)
+src/main/resources/secret.properties

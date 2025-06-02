@@ -1,7 +1,6 @@
 package com.ufrn.imd.diretoriadeprojetos.models;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
@@ -10,8 +9,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -26,8 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Parceiro {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private String cnpj;
 
     private String nome;
 

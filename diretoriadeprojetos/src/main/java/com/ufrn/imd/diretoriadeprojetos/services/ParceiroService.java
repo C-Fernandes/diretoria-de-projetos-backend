@@ -20,16 +20,16 @@ public class ParceiroService {
         return parceiroRepository.findAll();
     }
 
-    public Optional<Parceiro> findById(UUID id) {
-        return parceiroRepository.findById(id);
+    public Optional<Parceiro> findById(String cnpj) {
+        return parceiroRepository.findById(cnpj);
     }
 
     public Parceiro save(Parceiro parceiro) {
         return parceiroRepository.save(parceiro);
     }
 
-    public Parceiro update(UUID id, Parceiro parceiroAtualizado) {
-        return parceiroRepository.findById(id).map(parceiro -> {
+    public Parceiro update(String cnpj, Parceiro parceiroAtualizado) {
+        return parceiroRepository.findById(cnpj).map(parceiro -> {
             parceiro.setNome(parceiroAtualizado.getNome());
             parceiro.setTipoFinanciamento(parceiroAtualizado.getTipoFinanciamento());
             parceiro.setProjetos(parceiroAtualizado.getProjetos());
@@ -37,7 +37,7 @@ public class ParceiroService {
         }).orElseThrow(() -> new RuntimeException("Parceiro não encontrado"));
     }
 
-    public void delete(UUID id) {
-        parceiroRepository.deleteById(id);
+    public void delete(String cnpj) {
+        parceiroRepository.deleteById(cnpj);
     }
 }

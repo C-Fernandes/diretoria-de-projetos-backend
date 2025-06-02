@@ -25,26 +25,26 @@ import lombok.Setter;
 @Entity
 public class Bolsista {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = true)
-    private String cpf;
+  @Column(nullable = true)
+  private String cpf;
 
-    private String nome;
-    private String email;
+  private String nome;
+  private String email;
 
   private int rubrica;
 
-    // Campos de estudante
-    private String tipoSuperior;
-    private String curso;
+  // Campos de estudante
+  private String tipoSuperior;
+  private String curso;
 
-    // Campos de pesquisador
-    private Boolean docente;
-    private String formacao;
+  // Campos de pesquisador
+  private Boolean docente;
+  private String formacao;
 
-    @OneToMany(mappedBy = "bolsista", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjetoHasBolsista> projetos = new ArrayList<>();
+  @OneToMany(mappedBy = "bolsista", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ProjetoHasBolsista> projetos = new ArrayList<>();
 }

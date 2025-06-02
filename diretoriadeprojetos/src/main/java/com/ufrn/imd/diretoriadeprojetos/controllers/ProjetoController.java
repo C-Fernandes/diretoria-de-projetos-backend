@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.ProjetoDTO;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.services.CoordenadorService;
 import com.ufrn.imd.diretoriadeprojetos.services.ParceiroService;
@@ -26,15 +28,16 @@ public class ProjetoController {
     @Autowired
     private ProjetoService projetoService;
 
-    @Autowired
-    private CoordenadorService coordenadorService;
-
-    @Autowired
-    private ParceiroService parceiroService;
-
     @GetMapping
     public List<Projeto> listarTodos() {
         return projetoService.listarTodos();
+    }
+
+    @GetMapping(params = "externo")
+    public ResponseEntity<Object> buscarNaApi(
+            @RequestParam String numeroSipac,
+            @RequestParam String anoSipac) {
+        return ResponseEntity.ok(projetoService.buscarNaApi(numeroSipac, anoSipac));
     }
 
     @GetMapping("/{nSipac}")

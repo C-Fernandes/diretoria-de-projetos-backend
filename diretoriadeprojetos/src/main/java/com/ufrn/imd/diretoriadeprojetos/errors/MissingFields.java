@@ -1,4 +1,4 @@
-package com.ufrn.imd.errors;
+package com.ufrn.imd.diretoriadeprojetos.errors;
 
 import org.springframework.http.HttpStatus;
 

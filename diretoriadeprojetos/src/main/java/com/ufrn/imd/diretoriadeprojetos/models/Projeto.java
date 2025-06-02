@@ -6,6 +6,7 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -22,8 +23,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Projeto {
-    @Id
-    private String nSipac;
+    @EmbeddedId
+    private ProjetoId id;
     private String nFunpec;
     @Column(nullable = false)
 
@@ -48,4 +49,8 @@ public class Projeto {
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjetoHasBolsista> bolsistas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Aditivo> aditivos = new ArrayList<>();
+
 }

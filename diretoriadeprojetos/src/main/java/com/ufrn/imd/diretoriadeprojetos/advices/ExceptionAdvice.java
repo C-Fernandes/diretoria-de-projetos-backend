@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.ufrn.imd.errors.HttpError;
+import com.ufrn.imd.diretoriadeprojetos.errors.HttpError;
 
 @ControllerAdvice
 public class ExceptionAdvice {

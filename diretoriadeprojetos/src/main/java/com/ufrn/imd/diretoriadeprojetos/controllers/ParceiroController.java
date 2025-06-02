@@ -30,8 +30,8 @@ public class ParceiroController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Parceiro> buscarPorId(@PathVariable UUID id) {
-        return parceiroService.findById(id)
+    public ResponseEntity<Parceiro> buscarPorId(@PathVariable String cnpj) {
+        return parceiroService.findById(cnpj)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
