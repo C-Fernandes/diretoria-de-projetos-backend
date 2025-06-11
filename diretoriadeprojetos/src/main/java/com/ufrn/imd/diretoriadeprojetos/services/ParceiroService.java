@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.repository.ParceiroRepository;
 
 @Service
@@ -20,16 +21,16 @@ public class ParceiroService {
         return parceiroRepository.findAll();
     }
 
-    public Optional<Parceiro> findById(String cnpj) {
-        return parceiroRepository.findById(cnpj);
+    public Optional<Parceiro> findById(UUID id) {
+        return parceiroRepository.findById(id);
     }
 
     public Parceiro save(Parceiro parceiro) {
         return parceiroRepository.save(parceiro);
     }
 
-    public Parceiro update(String cnpj, Parceiro parceiroAtualizado) {
-        return parceiroRepository.findById(cnpj).map(parceiro -> {
+    public Parceiro update(UUID id, Parceiro parceiroAtualizado) {
+        return parceiroRepository.findById(id).map(parceiro -> {
             parceiro.setNome(parceiroAtualizado.getNome());
             parceiro.setTipoFinanciamento(parceiroAtualizado.getTipoFinanciamento());
             parceiro.setProjetos(parceiroAtualizado.getProjetos());
@@ -37,7 +38,31 @@ public class ParceiroService {
         }).orElseThrow(() -> new RuntimeException("Parceiro não encontrado"));
     }
 
-    public void delete(String cnpj) {
-        parceiroRepository.deleteById(cnpj);
+    public void delete(UUID id) {
+        parceiroRepository.deleteById(id);
     }
+
+    public Optional<Parceiro> findByNome(String nomeParticipe) {
+        return parceiroRepository.findByNome(nomeParticipe);
+    }
+
+    public Optional<Parceiro> findByIdParticipe(Long idParticipe) {
+        return parceiroRepository.findByIdParticipe(idParticipe);
+    }
+
+    public boolean checarEmbrapii(Parceiro parceiroEmbrapii) {
+        Optional<Parceiro> parceiroOptional = findByIdParticipe(parceiroEmbrapii.getIdParticipe());
+
+        if (parceiroOptional.isPresent() && parceiroOptional.get().getIdParticipe() == 21009L) {
+            return true;
+        }
+
+        if (findByNome(parceiroEmbrapii.getNome())
+                .equals("ASSOCIAÇÃO BRASILEIRA DE PESQUISA E INOVAÇÃO INDUSTRIAL  EMBRAPII")) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

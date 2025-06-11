@@ -1,4 +1,4 @@
-package com.ufrn.imd.diretoriadeprojetos.models;
+package com.ufrn.imd.diretoriadeprojetos.models.ids;
 
 import java.io.Serializable;
 import java.util.UUID;

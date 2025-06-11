@@ -25,7 +25,7 @@ public class CoordenadorController {
 
     @PostMapping
     public ResponseEntity<Coordenador> criar(@RequestBody Coordenador coordenador) {
-        Coordenador salvo = coordenadorService.salvar(coordenador);
+        Coordenador salvo = coordenadorService.save(coordenador);
         return ResponseEntity.ok(salvo);
     }
 
@@ -36,20 +36,20 @@ public class CoordenadorController {
     }
 
     @GetMapping("/{matricula}")
-    public ResponseEntity<Coordenador> buscarPorMatricula(@PathVariable String matricula) {
+    public ResponseEntity<Coordenador> buscarPorMatricula(@PathVariable Long matricula) {
         return coordenadorService.buscarPorMatricula(matricula)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{matricula}")
-    public ResponseEntity<Coordenador> atualizar(@PathVariable String matricula, @RequestBody Coordenador coordenador) {
+    public ResponseEntity<Coordenador> atualizar(@PathVariable Long matricula, @RequestBody Coordenador coordenador) {
         Coordenador atualizado = coordenadorService.atualizar(matricula, coordenador);
         return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{matricula}")
-    public ResponseEntity<Void> deletar(@PathVariable String matricula) {
+    public ResponseEntity<Void> deletar(@PathVariable Long matricula) {
         coordenadorService.deletar(matricula);
         return ResponseEntity.noContent().build();
     }

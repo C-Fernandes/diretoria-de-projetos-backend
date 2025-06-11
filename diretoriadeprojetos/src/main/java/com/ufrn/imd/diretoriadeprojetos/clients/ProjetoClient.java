@@ -1,63 +1,109 @@
 package com.ufrn.imd.diretoriadeprojetos.clients;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ufrn.imd.diretoriadeprojetos.auth.AuthApiService;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.AuthApiProperties;
 
-import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
-
 @Component
 public class ProjetoClient {
-    @Autowired
-    private WebClient webClient;
 
-    @Autowired
-    private AuthApiService authApiService;
+        @Autowired
+        private RestTemplate restTemplate;
 
-    @Autowired
-    private AuthApiProperties authProperties;
+        @Autowired
+        private AuthApiService authApiService;
 
-    public Mono<List<ProjetoApiResponse>> buscarNaApi(Optional<String> numero,
-            Optional<String> ano) {
-        if (!numero.isPresent() && !ano.isPresent()) {
-            return Mono.error(new IllegalArgumentException(
-                    "É preciso informar pelo menos o número ou o ano do projeto."));
+        @Autowired
+        private AuthApiProperties authProps;
+
+        public List<ProjetoApiResponse> buscarNaApi(String numero, String ano) {
+                String token = authApiService.solicitarToken();
+
+                if (token == null) {
+                        System.err.println("Erro: token é nulo");
+                        return List.of(); // ou lançar exceção
+                }
+
+                String url = UriComponentsBuilder.fromUriString("/projeto-convenio/v1/projetos")
+                                .queryParam("numero", numero)
+                                .queryParam("ano", ano)
+                                .toUriString();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(token);
+                headers.set("X-api-key", authProps.getXApiKey());
+                headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+                HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+                try {
+                        ResponseEntity<ProjetoApiResponse[]> response = restTemplate.exchange(
+                                        url,
+                                        HttpMethod.GET,
+                                        requestEntity,
+                                        ProjetoApiResponse[].class);
+
+                        ProjetoApiResponse[] projetosArray = response.getBody();
+                        if (projetosArray != null) {
+                                return List.of(projetosArray);
+                        } else {
+                                return List.of();
+                        }
+                } catch (Exception e) {
+                        System.err.println("Erro ao chamar /projeto-convenio/v1/projetos: " + e.getMessage());
+                        e.printStackTrace();
+                        return List.of();
+                }
         }
 
-        Mono<String> tokenMono = Mono
-                .fromCallable(() -> authApiService.solicitarToken(
-                        authProperties.getClientId(),
-                        authProperties.getClientSecret()));
+        public List<ParceiroApiResponse> buscarParceirosNaApi(Long idProjeto) {
+                String token = authApiService.solicitarToken();
 
-        // 3) monta e dispara a requisição
-        return tokenMono.flatMap(token -> webClient.get()
-                .uri(uriBuilder -> {
-                    UriBuilder ub = uriBuilder.path("/projeto-convenio/v1/projetos");
-                    numero.ifPresent(n -> ub.queryParam("numero", n));
-                    ano.ifPresent(a -> ub.queryParam("ano", a));
-                    return ub.build();
-                })
-                .headers(h -> h.setBearerAuth(token))
-                .retrieve()
-                .onStatus(
-                        status -> status.is4xxClientError(), // predicate correto
-                        resp -> Mono.error(new RuntimeException("Filtro inválido: "
-                                + resp.statusCode().value())) // devolve Mono<Throwable>
-                )
-                .onStatus(
-                        status -> status.is5xxServerError(), // mesmo para 5xx
-                        resp -> Mono.error(new RuntimeException(
-                                "Erro no servidor externo")))
-                .bodyToFlux(ProjetoApiResponse.class)
-                .collectList());
-    }
+                if (token == null) {
+                        System.err.println("Erro: token é nulo");
+                        return List.of();
+                }
+
+                String url = UriComponentsBuilder
+                                .fromUriString("/projeto-convenio/v1/projetos-convenio/{idProjeto}/participes")
+                                .buildAndExpand(idProjeto)
+                                .toUriString();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(token);
+                headers.set("X-api-key", authProps.getXApiKey());
+                headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+                HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+                try {
+                        ResponseEntity<ParceiroApiResponse[]> response = restTemplate.exchange(
+                                        url,
+                                        HttpMethod.GET,
+                                        requestEntity,
+                                        ParceiroApiResponse[].class);
+
+                        ParceiroApiResponse[] parceirosArray = response.getBody();
+                        if (parceirosArray != null) {
+                                return List.of(parceirosArray);
+                        } else {
+                                return List.of();
+                        }
+                } catch (Exception e) {
+                        System.err.println(
+                                        "Erro ao chamar /projetos-convenio/{idProjeto}/participes: " + e.getMessage());
+                        e.printStackTrace();
+                        return List.of();
+                }
+        }
 }

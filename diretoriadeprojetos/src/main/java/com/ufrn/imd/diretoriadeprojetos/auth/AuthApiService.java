@@ -1,33 +1,60 @@
 package com.ufrn.imd.diretoriadeprojetos.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.TokenResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.AuthApiProperties;
-
-import reactor.core.publisher.Mono;
 
 @Service
 public class AuthApiService {
-    @Autowired
-    private WebClient webClient;
-    @Autowired
-    private AuthApiProperties authProperties;
 
-    public String solicitarToken(String clientId, String clientSecret) {
-        Mono<String> response = webClient.post()
-                .uri("/authz-server/oauth/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters
-                        .fromFormData("client_id", clientId)
-                        .with("client_secret", clientSecret)
-                        .with("grant_type", "client_credentials"))
-                .retrieve()
-                .bodyToMono(String.class);
+    @Autowired
+    private RestTemplate restTemplate;
 
-        return response.block();
+    @Autowired
+    private AuthApiProperties authProps;
+
+    public String solicitarToken() {
+        String clientId = authProps.getClientId();
+        String clientSecret = authProps.getClientSecret();
+
+        System.out.println(">>> Entrou em AuthApiService.solicitarToken");
+        System.out.println("    clientId = " + clientId);
+
+        String url = "/authz-server/oauth/token" +
+                "?client_id=" + clientId +
+                "&client_secret=" + clientSecret +
+                "&grant_type=client_credentials";
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(MediaType.parseMediaTypes("application/json"));
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<TokenResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    TokenResponse.class);
+
+            TokenResponse tokenResponse = response.getBody();
+
+            if (tokenResponse != null) {
+                System.out.println(">>> Recebeu TokenResponse: " + tokenResponse);
+                System.out.println(">>> access_token extraído: " + tokenResponse.getAccessToken());
+                return tokenResponse.getAccessToken();
+            } else {
+                System.err.println(">>> TokenResponse veio nulo");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println(">>> Erro ao obter token no AuthApiService: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }

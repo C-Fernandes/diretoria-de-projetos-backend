@@ -1,19 +1,32 @@
 package com.ufrn.imd.diretoriadeprojetos.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.time.Instant;
+import java.util.Date;
 
 @Getter
 @Setter
+@ToString
 public class ProjetoApiResponse {
+
+    @JsonProperty("id-projeto-convenio")
+    private Long idProjetoConvenio;
 
     @JsonProperty("id-projeto")
     private Long idProjeto;
 
-    private int numero;
-    private int ano;
+    private Integer numero;
+    private Integer ano;
 
     @JsonProperty("numero-cadastro")
     private Integer numeroCadastro;
@@ -28,10 +41,10 @@ public class ProjetoApiResponse {
     private String tituloProjeto;
 
     @JsonProperty("inicio-execucao")
-    private Long inicioExecucao;
+    private Date inicioExecucao;
 
     @JsonProperty("fim-execucao")
-    private Long fimExecucao;
+    private Date fimExecucao;
 
     @JsonProperty("id-status-projeto")
     private Integer idStatusProjeto;
@@ -40,7 +53,7 @@ public class ProjetoApiResponse {
     private String descricaoStatus;
 
     @JsonProperty("data-ultima-alteracao")
-    private Long dataUltimaAlteracao;
+    private Date dataUltimaAlteracao;
 
     @JsonProperty("id-tipo-projeto")
     private Integer idTipoProjeto;
@@ -75,7 +88,7 @@ public class ProjetoApiResponse {
     private String cpfCnpjProponente;
 
     @JsonProperty("data-assinatura")
-    private Long dataAssinatura;
+    private Instant dataAssinatura;
 
     @JsonProperty("valor-projeto")
     private Double valorProjeto;
