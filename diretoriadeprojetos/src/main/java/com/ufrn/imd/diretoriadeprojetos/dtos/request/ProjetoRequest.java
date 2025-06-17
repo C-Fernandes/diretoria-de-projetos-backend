@@ -4,28 +4,30 @@ import java.sql.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class ProjetoRequest {
-
-    private String idProjeto;
+    private String numeroSipac;
+    private String anoSipac;
     private String nFunpec;
     private String titulo;
-    private Boolean sebrae;
-    private Boolean embrapii;
-    private Boolean leiDeInformatica;
     private double valor;
+    private String contaContrato;
     private Date dataInicio;
     private Date dataFim;
-    private String contaContrato;
+    private boolean leiInformatica;
+    private boolean residencia;
+    private String categoria;
+    private Long coordenadorId;
+    private List<ProjetoParceiroRequest> parceirosId;
     private String status;
-
-    private String coordenadorMatricula;
-    private List<ProjetoParceiroRequest> parceiros;
+    private String descricao;
 }

@@ -1,5 +1,6 @@
 package com.ufrn.imd.diretoriadeprojetos.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 
 import jakarta.persistence.Column;
@@ -17,12 +18,12 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProjetoParceiro {
 
     @EmbeddedId
-    private ProjetoParceiroId id = new ProjetoParceiroId();
+    private ProjetoParceiroId id;
 
     @ManyToOne
     @MapsId("projetoId")
@@ -30,6 +31,7 @@ public class ProjetoParceiro {
             @JoinColumn(name = "numero_sipac", referencedColumnName = "numero_sipac"),
             @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac")
     })
+    @JsonBackReference
     private Projeto projeto;
 
     @ManyToOne
@@ -38,7 +40,8 @@ public class ProjetoParceiro {
     private Parceiro parceiro;
 
     @Column(unique = true)
-    private String nFunpec;
+    private String numeroFunpec;
 
     private Double valorContribuicao;
+
 }

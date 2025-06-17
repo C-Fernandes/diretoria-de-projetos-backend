@@ -4,18 +4,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Data
 @Builder
@@ -33,6 +27,6 @@ public class ProjetoResponse {
     private String contaContrato;
     private String status;
     private String descricao;
-    private Long coordenadorId;
+    private Coordenador coordenador;
     private List<UUID> parceirosId;
 }

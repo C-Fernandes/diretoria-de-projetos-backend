@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
@@ -60,22 +62,9 @@ public class ProjetoController {
      * }
      */
     @PostMapping
-    public ResponseEntity<Projeto> criar(@RequestBody ProjetoResponse projeto) {
+    public ResponseEntity<Projeto> criar(@RequestBody ProjetoRequest projeto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projeto));
     }
-    /*
-     * @PutMapping("/{nSipac}")
-     * public ResponseEntity<Projeto> atualizar(@PathVariable String
-     * nSipac, @RequestBody Projeto projetoAtualizado) {
-     * return ResponseEntity.ok(projetoService.atualizar(nSipac,
-     * projetoAtualizado));
-     * }
-     * 
-     * @DeleteMapping("/{nSipac}")
-     * public ResponseEntity<Void> deletar(@PathVariable String nSipac) {
-     * projetoService.deletar(nSipac);
-     * return ResponseEntity.noContent().build();
-     * }
-     */
+
 }

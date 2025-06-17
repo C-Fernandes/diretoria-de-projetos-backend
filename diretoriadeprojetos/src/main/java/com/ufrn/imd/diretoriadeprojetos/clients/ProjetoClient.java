@@ -95,6 +95,8 @@ public class ProjetoClient {
 
                         ParceiroApiResponse[] parceirosArray = response.getBody();
                         if (parceirosArray != null) {
+
+                                System.out.println("Parceiros na api :" + parceirosArray);
                                 return List.of(parceirosArray);
                         } else {
                                 return List.of();

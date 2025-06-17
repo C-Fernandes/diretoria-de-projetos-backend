@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @AllArgsConstructor
 @Getter
+@Setter
 @NoArgsConstructor
 public class ProjetoParceiroRequest {
     private UUID parceiroId;
-    private String nFunpec;
+    private String numeroFunpec;
 }
