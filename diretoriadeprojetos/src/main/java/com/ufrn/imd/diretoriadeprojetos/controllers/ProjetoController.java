@@ -25,6 +25,7 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.services.CoordenadorService;
 import com.ufrn.imd.diretoriadeprojetos.services.ParceiroService;
 import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
@@ -38,7 +39,7 @@ public class ProjetoController {
     private ProjetoService projetoService;
 
     @GetMapping
-    public List<Projeto> listarTodos() {
+    public List<ProjetoResponse> listarTodos() {
         return projetoService.listarTodos();
     }
 
@@ -65,6 +66,15 @@ public class ProjetoController {
     public ResponseEntity<Projeto> criar(@RequestBody ProjetoRequest projeto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projeto));
+    }
+
+    @GetMapping("/{numeroSipac}/{anoSipac}")
+    public ResponseEntity<Projeto> findById(
+            @PathVariable String numeroSipac,
+            @PathVariable String anoSipac) {
+
+        Projeto projeto = projetoService.findById(new ProjetoId(numeroSipac, anoSipac));
+        return ResponseEntity.ok(projeto);
     }
 
 }

@@ -10,13 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.ufrn.imd.diretoriadeprojetos.clients.OrigemRecursoClient;
 import com.ufrn.imd.diretoriadeprojetos.clients.ProjetoClient;
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.OrigemRecursoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
+import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
 import com.ufrn.imd.diretoriadeprojetos.errors.HttpError;
 import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
@@ -32,8 +35,7 @@ import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoRepository;
 public class ProjetoService {
     @Autowired
     private ProjetoRepository projetoRepository;
-    @Autowired
-    private ProjetoMapper projetoMapper;
+
     @Autowired
     private CoordenadorService coordenadorService;
     @Autowired
@@ -41,11 +43,44 @@ public class ProjetoService {
     @Autowired
     private ProjetoClient projetoClient;
 
-    public List<Projeto> listarTodos() {
-        return projetoRepository.findAll();
+    @Autowired
+    private OrigemRecursoClient origemRecursoClient;
+
+    public List<ProjetoResponse> listarTodos() {
+
+        List<Projeto> projetos = projetoRepository.findAll();
+        List<ProjetoResponse> projetosResponse = new ArrayList<>();
+        for (Projeto projeto : projetos) {
+            ProjetoResponse response = new ProjetoResponse();
+            // Map fields from Projeto to ProjetoResponse
+            response.setNumeroSipac(Integer.parseInt(projeto.getId().getNumeroSipac())); // Assuming numeroSipac is a
+                                                                                         // number
+            response.setAnoSipac(Integer.parseInt(projeto.getId().getAnoSipac())); // Assuming anoSipac is a number
+            response.setTitulo(projeto.getTitulo());
+            response.setLeiDeInformatica(projeto.getLeiDeInformatica());
+            response.setValor(projeto.getValor());
+            response.setDataInicio(projeto.getDataInicio());
+            response.setDataFim(projeto.getDataFim());
+            response.setContaContrato(projeto.getContaContrato());
+            response.setStatus(projeto.getStatus());
+            response.setDescricao(projeto.getDescricao());
+            response.setCoordenador(projeto.getCoordenador()); // Be careful if Coordenador also needs a DTO
+
+            // Mapping parceirosId (assuming ProjetoParceiro has a method to get the
+            // partner's UUID)
+            List<UUID> parceirosIds = projeto.getParceiros().stream()
+                    .map(projetoParceiro -> projetoParceiro.getParceiro().getId()) // Assuming parceiro.getId() returns
+                                                                                   // a UUID
+                    .collect(Collectors.toList());
+            response.setParceirosId(parceirosIds);
+
+            projetosResponse.add(response);
+        }
+        return projetosResponse;
+
     }
 
-    public Projeto buscarPorId(ProjetoId id) {
+    public Projeto findById(ProjetoId id) {
         return projetoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
     }
@@ -125,13 +160,17 @@ public class ProjetoService {
         List<ProjetoResponse> respostas = new ArrayList<>();
 
         for (ProjetoApiResponse projeto : projetos) {
+
             Coordenador coordenador = verificarCoordenador(projeto.getSiapeCoordenador(), projeto.getNomeCoordenador());
-            List<Parceiro> parceiros = verificarParceiros(projetoClient.buscarParceirosNaApi(projeto.getIdProjeto()));
+            List<Parceiro> parceiros = verificarParceiros(
+                    origemRecursoClient.buscarParceirosNaApi(projeto.getIdProjeto()),
+                    origemRecursoClient.buscarFontesDeRenda(projeto.getIdProjeto()));
 
             ProjetoResponse respostaProjeto = new ProjetoResponse();
             respostaProjeto.setContaContrato(projeto.getNumeroFormatado());
             respostaProjeto.setCoordenador(coordenador);
-            respostaProjeto.setIdProjeto(projeto.getIdProjeto());
+            respostaProjeto.setNumeroSipac(projeto.getNumero());
+            respostaProjeto.setAnoSipac(projeto.getAno());
             respostaProjeto.setDescricao(projeto.getJustificativa());
             respostaProjeto.setTitulo(projeto.getTituloProjeto());
             respostaProjeto.setDataFim(projeto.getFimExecucao());
@@ -152,20 +191,33 @@ public class ProjetoService {
         return respostas;
     }
 
-    public List<Parceiro> verificarParceiros(List<ParceiroApiResponse> listaDeParceiros) {
+    public List<Parceiro> verificarParceiros(List<ParceiroApiResponse> listaDeParceiros,
+            List<OrigemRecursoApiResponse> origensRecusos) {
         List<Parceiro> parceiros = new ArrayList<>();
+
         for (ParceiroApiResponse parceiroApi : listaDeParceiros) {
+            Parceiro parceiro;
             Optional<Parceiro> parceiroOpt = parceiroService.findByIdParticipe(parceiroApi.getIdParticipe());
-            if (parceiroOpt.isEmpty()) {
-                parceiroOpt = parceiroService.findByNome(parceiroApi.getNomeParticipe());
-            }
 
             if (parceiroOpt.isPresent()) {
-                parceiros.add(parceiroOpt.get());
+                parceiro = parceiroOpt.get();
             } else {
-                Parceiro novoParceiro = new Parceiro(parceiroApi.getIdParticipe(), parceiroApi.getNomeParticipe());
-                parceiros.add(parceiroService.save(novoParceiro));
+                parceiroOpt = parceiroService.findByNome(parceiroApi.getNomeParticipe());
+                if (parceiroOpt.isPresent()) {
+                    parceiro = parceiroOpt.get();
+                } else {
+                    parceiro = new Parceiro(parceiroApi.getIdParticipe(), parceiroApi.getNomeParticipe());
+                }
             }
+
+            for (OrigemRecursoApiResponse origemRecurso : origensRecusos) {
+                origemRecurso.toString();
+                if (parceiro.getNome() != null && parceiro.getNome().equals(origemRecurso.getNomeFinanciador())) {
+                    TipoFinanciamento tipo = TipoFinanciamento.fromNome(origemRecurso.getNomeEsferaOrigemRecurso());
+                    parceiro.setTipoFinanciamento(tipo);
+                }
+            }
+            parceiros.add(parceiroService.save(parceiro));
         }
 
         return parceiros;
@@ -192,4 +244,5 @@ public class ProjetoService {
 
         return coordenador;
     }
+
 }

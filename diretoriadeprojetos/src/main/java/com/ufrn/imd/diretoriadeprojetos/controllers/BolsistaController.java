@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.services.BolsistaService;
 
 @RestController
@@ -57,5 +59,14 @@ public class BolsistaController {
     public ResponseEntity<Void> deletar(@PathVariable UUID id) {
         bolsistaService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{numeroSipac}/{anoSipac}")
+    public ResponseEntity<List<Bolsista>> findByProjeto(
+            @PathVariable String numeroSipac,
+            @PathVariable String anoSipac) {
+
+        List<Bolsista> bolsistas = bolsistaService.findByProjeto(new ProjetoId(numeroSipac, anoSipac));
+        return ResponseEntity.ok(bolsistas);
     }
 }

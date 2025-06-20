@@ -44,8 +44,6 @@ public class AuthApiService {
             TokenResponse tokenResponse = response.getBody();
 
             if (tokenResponse != null) {
-                System.out.println(">>> Recebeu TokenResponse: " + tokenResponse);
-                System.out.println(">>> access_token extraído: " + tokenResponse.getAccessToken());
                 return tokenResponse.getAccessToken();
             } else {
                 System.err.println(">>> TokenResponse veio nulo");

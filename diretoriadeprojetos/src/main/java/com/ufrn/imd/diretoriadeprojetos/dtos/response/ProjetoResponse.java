@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 
 public class ProjetoResponse {
 
-    private Long idProjeto;
+    private int numeroSipac;
+    private int anoSipac;
     private String titulo;
     private Boolean leiDeInformatica;
     private double valor;

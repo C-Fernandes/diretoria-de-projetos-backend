@@ -3,18 +3,26 @@ package com.ufrn.imd.diretoriadeprojetos.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.repository.BolsistaRepository;
+import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
 
 @Service
 public class BolsistaService {
 
     @Autowired
     private BolsistaRepository bolsistaRepository;
+
+    @Autowired
+    private ProjetoHasBolsistaRepository projetoHasBolsistaRepository;
 
     public List<Bolsista> listarTodos() {
         return bolsistaRepository.findAll();
@@ -44,5 +52,15 @@ public class BolsistaService {
 
     public void deletar(UUID id) {
         bolsistaRepository.deleteById(id);
+    }
+
+    public List<Bolsista> findByProjeto(ProjetoId projetoId) {
+        // 1. Busca todas as associações ProjetoHasBolsista para o projetoId
+        List<ProjetoHasBolsista> associacoes = projetoHasBolsistaRepository.findByIdProjetoId(projetoId);
+
+        // 2. Mapeia cada associação para o objeto Bolsista correspondente
+        return associacoes.stream()
+                .map(ProjetoHasBolsista::getBolsista) // Pega o objeto Bolsista de cada associação
+                .collect(Collectors.toList()); // Coleta em uma nova lista
     }
 }
