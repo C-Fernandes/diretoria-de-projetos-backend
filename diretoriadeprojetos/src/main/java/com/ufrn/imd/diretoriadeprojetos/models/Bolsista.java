@@ -29,13 +29,11 @@ public class Bolsista {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = true)
+  @Column(nullable = true, unique = true)
   private String cpf;
 
   private String nome;
   private String email;
-
-  private int rubrica;
 
   // Campos de estudante
   private String tipoSuperior;
@@ -47,4 +45,10 @@ public class Bolsista {
 
   @OneToMany(mappedBy = "bolsista", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ProjetoHasBolsista> projetos = new ArrayList<>();
+
+  public Bolsista(String nomeMembro) {
+
+    this.nome = nomeMembro;
+  }
+
 }

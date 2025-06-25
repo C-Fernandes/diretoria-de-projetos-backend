@@ -7,13 +7,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.clients.OrigemRecursoClient;
 import com.ufrn.imd.diretoriadeprojetos.clients.ProjetoClient;
-import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
-import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.OrigemRecursoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
@@ -21,7 +18,6 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
-import com.ufrn.imd.diretoriadeprojetos.errors.HttpError;
 import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;

@@ -37,9 +37,10 @@ public class ProjetoHasBolsista {
     @MapsId("bolsistaUuid")
     @JoinColumn(name = "bolsista_uuid")
     private Bolsista bolsista;
-
+    private int rubrica;
     private Double valor;
     private Date dataInicio;
     private Date dataFim;
     private Integer cHSemanal;
+
 }
