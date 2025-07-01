@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ProjetoResponse {
 
     private int numeroSipac;

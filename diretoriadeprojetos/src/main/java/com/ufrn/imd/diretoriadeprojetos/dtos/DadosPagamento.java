@@ -9,11 +9,11 @@ import lombok.ToString;
 @Setter
 public class DadosPagamento {
     private String numeroProjeto;
-    private String numeroRubrica;
+    private int numeroRubrica;
     private String nomeMembro;
     private String nivel;
     private String tipo;
-    private Double cargaHoraria;
+    private int cargaHoraria;
     private Double valor;
     private String competencia;
 

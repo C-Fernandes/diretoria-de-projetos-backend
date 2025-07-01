@@ -2,6 +2,7 @@ package com.ufrn.imd.diretoriadeprojetos.models;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
 
 import jakarta.persistence.EmbeddedId;
@@ -27,13 +28,16 @@ public class ProjetoHasBolsista {
 
     // 1) Associação com Projeto (ID composto)
     @ManyToOne
-    @MapsId("projetoId")
+    @MapsId("projetoParceiroId")
+    @JsonBackReference("projeto-bolsistas")
     @JoinColumns({
             @JoinColumn(name = "numero_sipac", referencedColumnName = "numero_sipac"),
-            @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac")
+            @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac"),
+            @JoinColumn(name = "parceiro_id", referencedColumnName = "parceiro_id")
     })
-    private Projeto projeto;
+    private ProjetoParceiro projetoParceiro;
     @ManyToOne
+    @JsonBackReference("bolsista-projetos")
     @MapsId("bolsistaUuid")
     @JoinColumn(name = "bolsista_uuid")
     private Bolsista bolsista;
@@ -43,4 +47,14 @@ public class ProjetoHasBolsista {
     private Date dataFim;
     private Integer cHSemanal;
 
+    public ProjetoHasBolsista(ProjetoHasBolsistaId projetoHasBolsistaId, String numeroRubrica, Double valor,
+            Date dataInicio, Date dataFim, int cargaHoraria) {
+        this.id = projetoHasBolsistaId;
+        this.rubrica = Integer.parseInt(numeroRubrica);
+        this.valor = valor;
+
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+        this.cHSemanal = cargaHoraria;
+    }
 }

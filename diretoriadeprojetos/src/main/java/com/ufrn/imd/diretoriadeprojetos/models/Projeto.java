@@ -52,11 +52,10 @@ public class Projeto {
     private String contaContrato;
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjetoHasBolsista> bolsistas = new ArrayList<>();
-
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Aditivo> aditivos = new ArrayList<>();
     private String status;
+
+    private String categoria;
 
     public Projeto() {
         this.id = new ProjetoId();

@@ -19,4 +19,5 @@ import lombok.Setter;
 public class ProjetoParceiroId implements Serializable {
     private ProjetoId projetoId;
     private UUID parceiroId;
+
 }

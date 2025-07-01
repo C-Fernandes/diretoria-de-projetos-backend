@@ -5,8 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -21,12 +31,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.DadosPagamento;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 import com.ufrn.imd.diretoriadeprojetos.repository.BolsistaRepository;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class BolsistaService {
@@ -37,8 +53,51 @@ public class BolsistaService {
     @Autowired
     private ProjetoHasBolsistaService projetoHasBolsistaService;
 
-    public List<Bolsista> listarTodos() {
-        return bolsistaRepository.findAll();
+    @Autowired
+    private ProjetoParceiroService projetoParceiroService;
+    private static final DateTimeFormatter FORMATADOR_COMPETENCIA_FLEXIVEL = new DateTimeFormatterBuilder()
+            .appendPattern("[MMM/yyyy][M/yyyy][MM/yyyy]") // Tenta "abr/2025", "4/2025" e "04/2025"
+            .toFormatter(new Locale("pt", "BR"));
+
+    public List<BolsistaResponse> listarTodos() {
+        List<Bolsista> bolsistas = bolsistaRepository.findAll();
+
+        return bolsistas.stream() // Inicia um fluxo de objetos Bolsista
+                .flatMap(bolsista -> bolsista.getProjetos().stream())
+                .map(vinculo -> {
+                    BolsistaResponse dto = new BolsistaResponse();
+                    Bolsista bolsista = vinculo.getBolsista();
+                    ProjetoParceiro projetoParceiro = vinculo.getProjetoParceiro();
+
+                    // Mapeia os dados do Bolsista
+                    if (bolsista != null) {
+                        dto.setId(bolsista.getId());
+                        dto.setCpf(bolsista.getCpf());
+                        dto.setNome(bolsista.getNome());
+                        dto.setEmail(bolsista.getEmail());
+                        dto.setTipoSuperior(bolsista.getTipoSuperior());
+                        dto.setCurso(bolsista.getCurso());
+                        dto.setDocente(bolsista.getDocente());
+                        dto.setFormacao(bolsista.getFormacao());
+                    }
+
+                    dto.setDataInicio(vinculo.getDataInicio());
+                    dto.setDataFim(vinculo.getDataFim());
+                    dto.setRubrica(vinculo.getRubrica());
+                    dto.setValor(vinculo.getValor());
+                    dto.setCHSemanal(vinculo.getCHSemanal());
+
+                    if (projetoParceiro != null && projetoParceiro.getProjeto() != null) {
+                        dto.setNumeroFunpec(projetoParceiro.getNumeroFunpec());
+                        if (projetoParceiro.getProjeto().getId() != null) {
+                            dto.setNumeroSipac(projetoParceiro.getProjeto().getId().getNumeroSipac());
+                            dto.setAnoSipac(projetoParceiro.getProjeto().getId().getAnoSipac());
+                        }
+                    }
+
+                    return dto;
+
+                }).collect(Collectors.toList());
     }
 
     public Optional<Bolsista> buscarPorId(UUID id) {
@@ -73,110 +132,16 @@ public class BolsistaService {
     public List<Bolsista> findByProjeto(ProjetoId projetoId) {
         List<ProjetoHasBolsista> associacoes = projetoHasBolsistaService.findByIdProjetoId(projetoId);
 
+        // Se a lista de associações for nula ou vazia, retorna uma lista de bolsistas
+        // vazia.
+        if (associacoes == null || associacoes.isEmpty()) {
+            return Collections.emptyList(); // Ou new ArrayList<>();
+        }
+
+        // Se houver associações, mapeia para a lista de bolsistas.
         return associacoes.stream()
                 .map(ProjetoHasBolsista::getBolsista)
                 .collect(Collectors.toList());
-    }
-
-    public List<DadosPagamento> processarCsv(MultipartFile file) {
-        List<DadosPagamento> pagamentos = new ArrayList<>();
-
-        CSVFormat csvFormat = CSVFormat.Builder.create()
-                .setDelimiter(';')
-                .setHeader() // Indica que a primeira linha é o cabeçalho
-                .setSkipHeaderRecord(true) // Pula a linha do cabeçalho ao ler os dados
-                .setTrim(true)
-                .setAllowMissingColumnNames(true)
-                .build();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(file.getInputStream(), Charset.forName("ISO-8859-1")));
-
-                CSVParser csvParser = csvFormat.parse(reader)) {
-
-            for (CSVRecord csvRecord : csvParser) {
-                DadosPagamento dados = new DadosPagamento();
-                dados.setNumeroProjeto(pegarNumeroProjeto(csvRecord));
-                dados.setNumeroRubrica(pegarRubrica(csvRecord));
-                dados.setNomeMembro(pegarMembro(csvRecord));
-                dados.setNivel(csvRecord.get("Nível"));
-                dados.setTipo(csvRecord.get("Tipo"));
-                dados.setCargaHoraria(Double.parseDouble(csvRecord.get("Carga Horária").replace(",", ".")));
-                dados.setValor(Double.parseDouble(csvRecord.get("Valor (R$)").replace(".", "").replace(",", ".")));
-                dados.setCompetencia(csvRecord.get("Competência")); // Ajuste "Competência" para o nome real da coluna
-
-                Optional<Bolsista> bolsistaExistente = findByNome(dados.getNomeMembro());
-                if (bolsistaExistente.isPresent()) {
-                    Optional<List<ProjetoHasBolsista>> relacoesBolsistasNoProjeto = projetoHasBolsistaService
-                            .findBolsistaInProjeto(bolsistaExistente.get(), dados.getNumeroProjeto());
-
-                    if (relacoesBolsistasNoProjeto.isPresent()) {
-
-                        // caso a relaçaõ exista nesse projeto
-                        for (ProjetoHasBolsista relacao : relacoesBolsistasNoProjeto.get()) {
-
-                        }
-                    } else {
-                        // caso a relação não exista nesse projeto
-                    }
-                } else {
-
-                    // caso o bolsista nem exista
-                    Bolsista novoBolsista = new Bolsista(dados.getNomeMembro());
-                    if (dados.getTipo().equalsIgnoreCase("docente")) {
-                        novoBolsista.setDocente(true);
-                    } else {
-                        novoBolsista.setTipoSuperior(dados.getNivel());
-                    }
-                    novoBolsista = salvar(novoBolsista);
-                }
-
-                pagamentos.add(dados);
-            }
-
-        } catch (IOException e) {
-            // Trate a exceção de I/O
-            e.printStackTrace();
-            // Ou lance uma exceção personalizada
-            throw new RuntimeException("Erro ao processar o arquivo CSV: " + e.getMessage(), e);
-        } catch (NumberFormatException e) {
-            // Trate a exceção de formato de número (ex: se Carga Horária ou Valor não forem
-            // números válidos)
-            e.printStackTrace();
-            throw new RuntimeException("Erro de formato de número no CSV: " + e.getMessage(), e);
-        }
-
-        return pagamentos;
-    }
-
-    private String pegarRubrica(CSVRecord csvRecord) {
-        String rubricaCompleta = csvRecord.get("Rubrica");
-
-        String rubrica;
-        if (rubricaCompleta != null && !rubricaCompleta.isEmpty()) {
-            Pattern pattern = Pattern.compile("^\\((\\d{2})\\)");
-            Matcher matcher = pattern.matcher(rubricaCompleta);
-
-            if (matcher.find()) {
-                rubrica = matcher.group(1);
-            } else {
-                java.util.regex.Matcher matcher20 = java.util.regex.Pattern.compile("20")
-                        .matcher(rubricaCompleta);
-                java.util.regex.Matcher matcher18 = java.util.regex.Pattern.compile("18")
-                        .matcher(rubricaCompleta);
-
-                if (matcher20.find()) {
-                    rubrica = "20";
-                } else if (matcher18.find()) {
-                    rubrica = "18";
-                } else {
-                    rubrica = null; // Ou um valor padrão se não encontrar 20 ou 18
-                }
-            }
-        } else {
-            rubrica = null; // Trata o caso da coluna "Rubrica" ser nula ou vazia
-        }
-        return rubrica;
     }
 
     private String pegarMembro(CSVRecord csvRecord) {
@@ -219,6 +184,260 @@ public class BolsistaService {
             numeroProjeto = null;
         }
         return numeroProjeto;
+    }
+
+    @Transactional
+    public List<DadosPagamento> processarCsv(MultipartFile file) {
+        System.out.println("\n\n[INFO] ========================================================");
+        System.out.println("[INFO] ||         INICIANDO PROCESSAMENTO DO ARQUIVO CSV        ||");
+        System.out.println("[INFO] ========================================================\n");
+
+        List<DadosPagamento> pagamentosProcessados = new ArrayList<>();
+
+        CSVFormat csvFormat = CSVFormat.Builder.create()
+                .setDelimiter(';')
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .setAllowMissingColumnNames(true)
+                .setTrim(true)
+                .build();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.ISO_8859_1));
+                CSVParser csvParser = csvFormat.parse(reader)) {
+
+            for (CSVRecord csvRecord : csvParser) {
+                System.out.println(String.format("\n[INFO] ----------- Processando Linha %d -----------",
+                        csvRecord.getRecordNumber()));
+
+                DadosPagamento dados = parseCsvRecord(csvRecord);
+                // Assumindo que você tenha um método toString() em DadosPagamento para
+                // facilitar o log
+                System.out.println("[DEBUG] Dados lidos da linha: " + dados.toString());
+
+                // 1. Valida e busca o projeto.
+                System.out.println("[DEBUG] Buscando projeto com número FUNPEC: " + dados.getNumeroProjeto());
+                ProjetoParceiro projeto = projetoParceiroService.findByNumeroFunpec(dados.getNumeroProjeto())
+                        .orElseThrow(() -> new RuntimeException(
+                                "Projeto com número FUNPEC " + dados.getNumeroProjeto() + " não encontrado."));
+                System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProjeto().getTitulo());
+
+                // 2. Busca o bolsista pelo nome.
+                System.out.println("[DEBUG] Buscando bolsista com nome: '" + dados.getNomeMembro() + "'");
+                Optional<Bolsista> bolsistaOpt = findByNome(dados.getNomeMembro());
+
+                if (bolsistaOpt.isPresent()) {
+                    System.out.println("[FLUXO] Bolsista JÁ EXISTE. Entrando no fluxo de gerenciamento de vínculo...");
+                    gerenciarVinculoExistente(bolsistaOpt.get(), projeto, dados);
+                } else {
+                    System.out.println("[FLUXO] Bolsista NÃO EXISTE. Entrando no fluxo de criação de novo bolsista...");
+                    criarNovoBolsistaComVinculo(projeto, dados);
+                }
+                pagamentosProcessados.add(dados);
+                System.out.println("[SUCCESS] Linha " + csvRecord.getRecordNumber() + " processada com sucesso.");
+            }
+
+            System.out.println("\n[INFO] ========================================================");
+            System.out.println("[INFO] ||       PROCESSAMENTO DO CSV FINALIZADO COM SUCESSO      ||");
+            System.out.println("[INFO] ========================================================");
+
+        } catch (IOException | DateTimeParseException e) {
+            System.err.println("[ERRO] OCORREU UM ERRO GRAVE DURANTE O PROCESSAMENTO DO CSV: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao processar o arquivo CSV: " + e.getMessage(), e);
+        }
+        return pagamentosProcessados;
+    }
+
+    private void gerenciarVinculoExistente(Bolsista bolsista, ProjetoParceiro projeto, DadosPagamento dados) {
+        System.out.println("  [FLUXO] -> Entrou em gerenciarVinculoExistente para: " + bolsista.getNome());
+
+        // Converte a competência do CSV para o formato YearMonth
+        YearMonth competenciaAtual = YearMonth.parse(dados.getCompetencia().toLowerCase(),
+                FORMATADOR_COMPETENCIA_FLEXIVEL);
+        System.out.println("    [DEBUG] Competência atual do CSV: " + competenciaAtual);
+        System.out.println("    [DEBUG] Buscando TODOS os vínculos do bolsista com o projeto...");
+
+        // Pega TODOS os vínculos, não apenas o mais recente
+        List<ProjetoHasBolsista> vinculosExistentes = projetoHasBolsistaService
+                .findBolsistaInProjeto(bolsista, projeto.getNumeroFunpec())
+                .orElse(new ArrayList<>()); // Garante uma lista vazia se não houver nada
+
+        if (vinculosExistentes.isEmpty()) {
+            System.out.println("    [DEBUG] Nenhuma relação anterior encontrada para este bolsista no projeto.");
+            System.out.println("      [AÇÃO] -> CRIANDO primeiro vínculo para bolsista já existente.");
+            criarNovoVinculo(bolsista, projeto, dados);
+            return; // Finaliza a execução para esta linha do CSV
+        }
+
+        // Procura por um vínculo que pode ser estendido PARA FRENTE
+        Optional<ProjetoHasBolsista> vinculoParaEstenderFim = vinculosExistentes.stream().filter(v -> {
+            YearMonth dataFim = YearMonth.from(v.getDataFim().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            return competenciaAtual.equals(dataFim.plusMonths(1));
+        }).findFirst();
+
+        // Procura por um vínculo que pode ser estendido PARA TRÁS
+        Optional<ProjetoHasBolsista> vinculoParaEstenderInicio = vinculosExistentes.stream().filter(v -> {
+            YearMonth dataInicio = YearMonth
+                    .from(v.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            return competenciaAtual.equals(dataInicio.minusMonths(1));
+        }).findFirst();
+
+        // --- ANÁLISE DOS CENÁRIOS ---
+
+        if (vinculoParaEstenderFim.isPresent() && vinculoParaEstenderInicio.isPresent()) {
+            // CENÁRIO 1: A competência serve como PONTE entre dois vínculos. Vamos uni-los.
+            ProjetoHasBolsista vinculoAnterior = vinculoParaEstenderFim.get();
+            ProjetoHasBolsista vinculoPosterior = vinculoParaEstenderInicio.get();
+
+            System.out.println("      [AÇÃO] -> PONTE DETECTADA: Unindo dois vínculos separados.");
+            System.out.println("        - Vínculo 1: de " + vinculoAnterior.getDataInicio() + " a "
+                    + vinculoAnterior.getDataFim());
+            System.out.println("        - Vínculo 2: de " + vinculoPosterior.getDataInicio() + " a "
+                    + vinculoPosterior.getDataFim());
+
+            // Atualiza a data final do primeiro vínculo para a data final do segundo
+            vinculoAnterior.setDataFim(vinculoPosterior.getDataFim());
+            projetoHasBolsistaService.salvar(vinculoAnterior);
+
+            projetoHasBolsistaService.deletar(vinculoPosterior);
+            System.out.println("      [SUCCESS] Vínculos unidos com sucesso.");
+
+        } else if (vinculoParaEstenderFim.isPresent()) {
+            // CENÁRIO 2: Apenas estende um vínculo para FRENTE.
+            ProjetoHasBolsista vinculo = vinculoParaEstenderFim.get();
+            System.out.println(
+                    "      [AÇÃO] -> CONDIÇÃO VERDADEIRA: Meses seguidos. ATUALIZANDO data final do vínculo existente.");
+            vinculo.setDataFim(converterCompetenciaParaDate(dados.getCompetencia(), true));
+            projetoHasBolsistaService.salvar(vinculo);
+
+        } else if (vinculoParaEstenderInicio.isPresent()) {
+            // CENÁRIO 3: Apenas estende um vínculo para TRÁS (sua nova regra).
+            ProjetoHasBolsista vinculo = vinculoParaEstenderInicio.get();
+            System.out.println(
+                    "      [AÇÃO] -> CONDIÇÃO VERDADEIRA: Meses seguidos. ATUALIZANDO data início do vínculo existente.");
+            vinculo.setDataInicio(converterCompetenciaParaDate(dados.getCompetencia(), false));
+            projetoHasBolsistaService.salvar(vinculo);
+
+        } else {
+            // CENÁRIO 4: Não é contíguo a nenhum vínculo existente. Cria um novo.
+            System.out.println(
+                    "      [AÇÃO] -> GAP DETECTADO: A competência não é contígua a nenhum vínculo. CRIANDO novo vínculo.");
+            criarNovoVinculo(bolsista, projeto, dados);
+        }
+    }
+
+    private void criarNovoBolsistaComVinculo(ProjetoParceiro projeto, DadosPagamento dados) {
+        System.out.println("  [AÇÃO] -> Entrou em criarNovoBolsistaComVinculo.");
+        Bolsista novoBolsista = new Bolsista(dados.getNomeMembro());
+        if ("docente".equalsIgnoreCase(dados.getTipo())) {
+            novoBolsista.setDocente(true);
+        } else {
+            novoBolsista.setDocente(false);
+            novoBolsista.setTipoSuperior(dados.getNivel());
+        }
+        System.out.println("    [AÇÃO] Salvando novo registro de Bolsista para: " + novoBolsista.getNome());
+        salvar(novoBolsista);
+
+        criarNovoVinculo(novoBolsista, projeto, dados);
+    }
+
+    private void criarNovoVinculo(Bolsista bolsista, ProjetoParceiro projeto, DadosPagamento dados) {
+        System.out.println("    [AÇÃO] -> Entrou em criarNovoVinculo para: " + bolsista.getNome());
+        ProjetoHasBolsistaId novoId = new ProjetoHasBolsistaId(projeto.getId(), bolsista.getId());
+
+        Date dataInicio = converterCompetenciaParaDate(dados.getCompetencia(), false);
+        Date dataFim = converterCompetenciaParaDate(dados.getCompetencia(), true);
+
+        System.out.println("      [DEBUG] Detalhes do novo vínculo (ProjetoHasBolsista):");
+        System.out.println("        - Data Início: " + dataInicio);
+        System.out.println("        - Data Fim: " + dataFim);
+        System.out.println("        - Valor: " + dados.getValor());
+
+        ProjetoHasBolsista novoVinculo = new ProjetoHasBolsista(
+                novoId,
+                projeto,
+                bolsista,
+                dados.getNumeroRubrica(),
+                dados.getValor(),
+                dataInicio,
+                dataFim,
+                dados.getCargaHoraria());
+
+        System.out.println("      [AÇÃO] Salvando o novo vínculo no banco de dados...");
+        projetoHasBolsistaService.salvar(novoVinculo);
+    }
+
+    private static Date converterCompetenciaParaDate(String competencia, boolean fimDoMes) {
+        if (competencia == null || competencia.trim().isEmpty()) {
+            throw new IllegalArgumentException("A string da competência está vazia ou nula.");
+        }
+
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendPattern("[MMM/yyyy][M/yyyy][MM/yyyy]") // Tenta "jun/2025", depois "6/2025", depois "06/2025"
+                .toFormatter(new Locale("pt", "BR"));
+
+        try {
+            YearMonth yearMonth = YearMonth.parse(competencia.toLowerCase(), formatter);
+            LocalDate localDate = fimDoMes ? yearMonth.atEndOfMonth() : yearMonth.atDay(1);
+            return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (DateTimeParseException e) {
+            // Se mesmo o formatador flexível falhar, lança um erro claro.
+            throw new RuntimeException(
+                    "Formato de competência inválido: '" + competencia
+                            + "'. Formatos aceitos são 'jun/2025', '6/2025' ou '06/2025'.",
+                    e);
+        }
+    }
+
+    private DadosPagamento parseCsvRecord(CSVRecord csvRecord) {
+        DadosPagamento dados = new DadosPagamento();
+
+        // --- Tratamento do NÚMERO DO PROJETO (já corrigido) ---
+        String projetoCompleto = csvRecord.get("Projeto");
+        String numeroProjeto = projetoCompleto;
+        if (projetoCompleto != null && projetoCompleto.contains(" - ")) {
+            numeroProjeto = projetoCompleto.split(" - ")[0].trim();
+        }
+        dados.setNumeroProjeto(numeroProjeto);
+        String membroCompleto = csvRecord.get("Membro");
+        String nomeMembro = membroCompleto; // Define um valor padrão
+
+        if (membroCompleto != null && membroCompleto.contains(" - ")) {
+            nomeMembro = membroCompleto.split(" - ")[1].trim();
+        }
+        dados.setNomeMembro(nomeMembro);
+        dados.setNumeroRubrica(extrairNumeroDaRubrica(csvRecord.get("Rubrica")));
+        dados.setNivel(csvRecord.get("Nível"));
+        dados.setTipo(csvRecord.get("Tipo"));
+        dados.setCargaHoraria(Integer.parseInt(csvRecord.get("Carga Horária").replace(",", ".")));
+        dados.setValor(Double.parseDouble(csvRecord.get("Valor (R$)").replace(".", "").replace(",", ".")));
+        dados.setCompetencia(csvRecord.get("Competência"));
+
+        return dados;
+    }
+
+    private Integer extrairNumeroDaRubrica(String rubricaCompleta) {
+        if (rubricaCompleta == null || rubricaCompleta.trim().isEmpty()) {
+            throw new NumberFormatException("A string da rubrica está vazia ou nula.");
+        }
+
+        // A expressão regular continua a mesma, para encontrar o número principal
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b(\\d{6,})\\b");
+        java.util.regex.Matcher matcher = pattern.matcher(rubricaCompleta);
+
+        if (matcher.find()) {
+            // 1. Pega o número completo como antes (ex: "339018")
+            int numeroCompleto = Integer.parseInt(matcher.group(1));
+
+            // 2. USA O OPERADOR MÓDULO (%) PARA PEGAR APENAS OS DOIS ÚLTIMOS DÍGITOS
+            // Exemplo: 339018 % 100 = 18
+            return numeroCompleto % 100;
+        }
+
+        // Se não encontrou o padrão específico, lança um erro claro.
+        throw new NumberFormatException(
+                "Não foi possível extrair um número de rubrica válido da string: '" + rubricaCompleta + "'");
     }
 
 }

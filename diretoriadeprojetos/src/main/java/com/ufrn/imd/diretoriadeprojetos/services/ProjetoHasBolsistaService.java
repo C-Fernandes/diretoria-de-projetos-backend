@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
 
@@ -19,7 +18,9 @@ public class ProjetoHasBolsistaService {
     private ProjetoHasBolsistaRepository projetoHasBolsistaRepository;
 
     public List<ProjetoHasBolsista> findByIdProjetoId(ProjetoId projetoId) {
-        return projetoHasBolsistaRepository.findByIdProjetoId(projetoId);
+        // return projetoHasBolsistaRepository.findByIdProjetoId(projetoId);
+
+        return null;
     }
 
     public void buscarPorNomeBolsista() {
@@ -27,8 +28,16 @@ public class ProjetoHasBolsistaService {
     }
 
     public Optional<List<ProjetoHasBolsista>> findBolsistaInProjeto(Bolsista bolsista, String numeroProjeto) {
+        return projetoHasBolsistaRepository.findByBolsistaAndProjetoParceiroNumeroFunpec(bolsista, numeroProjeto);
+    }
+
+    public ProjetoHasBolsista salvar(ProjetoHasBolsista projetoHasBolsista) {
+        return projetoHasBolsistaRepository.save(projetoHasBolsista);
+    }
+
+    public void deletar(ProjetoHasBolsista vinculoPosterior) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findBolsistaInProjeto'");
+        throw new UnsupportedOperationException("Unimplemented method 'deletar'");
     }
 
 }

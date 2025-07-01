@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
@@ -30,7 +31,7 @@ public class BolsistaController {
     private BolsistaService bolsistaService;
 
     @GetMapping
-    public List<Bolsista> listarTodos() {
+    public List<BolsistaResponse> listarTodos() {
         return bolsistaService.listarTodos();
     }
 
