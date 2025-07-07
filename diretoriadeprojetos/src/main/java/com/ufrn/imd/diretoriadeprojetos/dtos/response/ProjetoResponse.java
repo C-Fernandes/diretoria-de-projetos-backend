@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjetoResponse {
 
-    private int numeroSipac;
-    private int anoSipac;
+    private String numeroSipac;
+    private String anoSipac;
     private String titulo;
     private Boolean leiDeInformatica;
     private double valor;

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.clients.OrigemRecursoClient;
 import com.ufrn.imd.diretoriadeprojetos.clients.ProjetoClient;
+import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.OrigemRecursoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
@@ -38,42 +39,15 @@ public class ProjetoService {
     private ParceiroService parceiroService;
     @Autowired
     private ProjetoClient projetoClient;
-
+    @Autowired
+    private ProjetoMapper projetoMapper;
     @Autowired
     private OrigemRecursoClient origemRecursoClient;
 
     public List<ProjetoResponse> listarTodos() {
-
-        List<Projeto> projetos = projetoRepository.findAll();
-        List<ProjetoResponse> projetosResponse = new ArrayList<>();
-        for (Projeto projeto : projetos) {
-            ProjetoResponse response = new ProjetoResponse();
-            // Map fields from Projeto to ProjetoResponse
-            response.setNumeroSipac(Integer.parseInt(projeto.getId().getNumeroSipac())); // Assuming numeroSipac is a
-                                                                                         // number
-            response.setAnoSipac(Integer.parseInt(projeto.getId().getAnoSipac())); // Assuming anoSipac is a number
-            response.setTitulo(projeto.getTitulo());
-            response.setLeiDeInformatica(projeto.getLeiDeInformatica());
-            response.setValor(projeto.getValor());
-            response.setDataInicio(projeto.getDataInicio());
-            response.setDataFim(projeto.getDataFim());
-            response.setContaContrato(projeto.getContaContrato());
-            response.setStatus(projeto.getStatus());
-            response.setDescricao(projeto.getDescricao());
-            response.setCoordenador(projeto.getCoordenador()); // Be careful if Coordenador also needs a DTO
-
-            // Mapping parceirosId (assuming ProjetoParceiro has a method to get the
-            // partner's UUID)
-            List<UUID> parceirosIds = projeto.getParceiros().stream()
-                    .map(projetoParceiro -> projetoParceiro.getParceiro().getId()) // Assuming parceiro.getId() returns
-                                                                                   // a UUID
-                    .collect(Collectors.toList());
-            response.setParceirosId(parceirosIds);
-
-            projetosResponse.add(response);
-        }
-        return projetosResponse;
-
+        return projetoRepository.findAll().stream()
+                .map(projetoMapper::toResponse) // Usa o mapper para converter cada projeto
+                .collect(Collectors.toList());
     }
 
     public Projeto findById(ProjetoId id) {
@@ -81,68 +55,56 @@ public class ProjetoService {
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
     }
 
+    // Dentro da sua classe ProjetoService
+
     public Projeto salvar(ProjetoRequest projetoDto) {
         System.out.println("Projeto dto: " + projetoDto);
+
+        // --- Bloco de Validações (continua o mesmo) ---
         if (projetoDto.getNumeroSipac() == null || projetoDto.getNumeroSipac().isBlank()) {
             throw new MissingFields("O número SIPAC do projeto é obrigatório.");
         }
-
         if (projetoDto.getAnoSipac() == null || projetoDto.getAnoSipac().isBlank()) {
             throw new MissingFields("O ano SIPAC do projeto é obrigatório.");
         }
-
         if (projetoDto.getContaContrato() == null || projetoDto.getContaContrato().isBlank()) {
             throw new MissingFields("Conta contrato é obrigatório.");
         }
-
         if (projetoDto.getCoordenadorId() == null) {
             throw new MissingFields("Coordenador é obrigatório.");
         }
-
         if (projetoDto.getParceirosId() == null || projetoDto.getParceirosId().isEmpty()) {
             throw new MissingFields("Pelo menos um parceiro é obrigatório.");
         }
-
         Coordenador coordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
                 .orElseThrow(() -> new EntityNotFound("Coordenador não encontrado"));
-        Projeto projeto = new Projeto();
 
-        ProjetoId projetoId = new ProjetoId(projetoDto.getNumeroSipac(), projetoDto.getAnoSipac());
-        projeto.setId(projetoId);
+        Projeto projeto = projetoMapper.toEntity(projetoDto, coordenador);
 
-        projeto.setTitulo(projetoDto.getTitulo());
-        projeto.setLeiDeInformatica(projetoDto.isLeiInformatica());
-        projeto.setResidencia(projetoDto.isResidencia());
-        projeto.setValor(projetoDto.getValor());
-        projeto.setContaContrato(projetoDto.getContaContrato());
-        projeto.setDataInicio(projetoDto.getDataInicio());
-        projeto.setDataFim(projetoDto.getDataFim());
-        projeto.setStatus(projetoDto.getStatus());
-        projeto.setDescricao(projetoDto.getDescricao());
-        projeto.setCoordenador(coordenador);
+        ProjetoId projetoId = projeto.getId();
         List<ProjetoParceiro> projetoParceiros = projetoDto.getParceirosId().stream().map(parceiroReq -> {
+
             if (parceiroReq.getParceiroId() == null) {
                 throw new MissingFields("ID do Parceiro é obrigatório.");
             }
-
             UUID parceiroId = parceiroReq.getParceiroId();
+
             Parceiro parceiro = parceiroService.findById(parceiroId)
                     .orElseThrow(() -> new EntityNotFound("Parceiro com ID " + parceiroId + " não encontrado"));
 
             ProjetoParceiro projetoParceiro = new ProjetoParceiro();
 
             projetoParceiro.setId(new ProjetoParceiroId(projetoId, parceiroId));
+
+            projetoParceiro.setProjeto(projeto);
             projetoParceiro.setParceiro(parceiro);
-            projetoParceiro.setProjeto(projeto); // OK! 'projeto' agora está consistente.
+
             projetoParceiro.setNumeroFunpec(parceiroReq.getNumeroFunpec());
 
             return projetoParceiro;
+
         }).collect(Collectors.toList());
-
-        // Adicionar parceiros ao projeto
         projeto.setParceiros(projetoParceiros);
-
-        // Salvar no banco
         return projetoRepository.save(projeto);
     }
 
@@ -153,38 +115,15 @@ public class ProjetoService {
     }
 
     private List<ProjetoResponse> tratarProjeto(List<ProjetoApiResponse> projetos) {
-        List<ProjetoResponse> respostas = new ArrayList<>();
-
-        for (ProjetoApiResponse projeto : projetos) {
-
-            Coordenador coordenador = verificarCoordenador(projeto.getSiapeCoordenador(), projeto.getNomeCoordenador());
+        return projetos.stream().map(projetoApi -> {
+            Coordenador coordenador = verificarCoordenador(projetoApi.getSiapeCoordenador(),
+                    projetoApi.getNomeCoordenador());
             List<Parceiro> parceiros = verificarParceiros(
-                    origemRecursoClient.buscarParceirosNaApi(projeto.getIdProjeto()),
-                    origemRecursoClient.buscarFontesDeRenda(projeto.getIdProjeto()));
+                    origemRecursoClient.buscarParceirosNaApi(projetoApi.getIdProjeto()),
+                    origemRecursoClient.buscarFontesDeRenda(projetoApi.getIdProjeto()));
 
-            ProjetoResponse respostaProjeto = new ProjetoResponse();
-            respostaProjeto.setContaContrato(projeto.getNumeroFormatado());
-            respostaProjeto.setCoordenador(coordenador);
-            respostaProjeto.setNumeroSipac(projeto.getNumero());
-            respostaProjeto.setAnoSipac(projeto.getAno());
-            respostaProjeto.setDescricao(projeto.getJustificativa());
-            respostaProjeto.setTitulo(projeto.getTituloProjeto());
-            respostaProjeto.setDataFim(projeto.getFimExecucao());
-            respostaProjeto.setDataInicio(projeto.getInicioExecucao());
-
-            List<UUID> listaParceiros = new ArrayList<>();
-            for (Parceiro parceiro : parceiros) {
-                listaParceiros.add(parceiro.getId());
-            }
-            respostaProjeto.setParceirosId(listaParceiros);
-            respostaProjeto.setStatus(projeto.getDescricaoStatus());
-            respostaProjeto.setValor(projeto.getValorProjeto());
-
-            respostas.add(respostaProjeto);
-        }
-
-        System.out.println(respostas);
-        return respostas;
+            return projetoMapper.toResponse(projetoApi, coordenador, parceiros);
+        }).collect(Collectors.toList());
     }
 
     public List<Parceiro> verificarParceiros(List<ParceiroApiResponse> listaDeParceiros,
