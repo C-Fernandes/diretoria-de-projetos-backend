@@ -34,7 +34,7 @@ public class Projeto {
 
     private String titulo;
     @Column(nullable = false)
-    private Boolean residencia, leiDeInformatica;
+    private Boolean residencia = false, leiDeInformatica = false, embrapii = false, sebrae = false;
     @Column(nullable = false)
     private double valor;
     @Column(nullable = false)

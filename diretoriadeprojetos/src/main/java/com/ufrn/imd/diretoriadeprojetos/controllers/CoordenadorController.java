@@ -31,7 +31,7 @@ public class CoordenadorController {
 
     @GetMapping
     public ResponseEntity<List<Coordenador>> listarTodos() {
-        List<Coordenador> coordenadores = coordenadorService.listarTodos();
+        List<Coordenador> coordenadores = coordenadorService.findAll();
         return ResponseEntity.ok(coordenadores);
     }
 
@@ -44,7 +44,7 @@ public class CoordenadorController {
 
     @PutMapping("/{matricula}")
     public ResponseEntity<Coordenador> atualizar(@PathVariable Long matricula, @RequestBody Coordenador coordenador) {
-        Coordenador atualizado = coordenadorService.atualizar(matricula, coordenador);
+        Coordenador atualizado = coordenadorService.update(matricula, coordenador);
         return ResponseEntity.ok(atualizado);
     }
 

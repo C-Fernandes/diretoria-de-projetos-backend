@@ -50,12 +50,9 @@ public class BolsistaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Bolsista> atualizar(@PathVariable UUID id, @RequestBody Bolsista bolsista) {
-        try {
-            Bolsista atualizado = bolsistaService.atualizar(id, bolsista);
-            return ResponseEntity.ok(atualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        Bolsista atualizado = bolsistaService.atualizar(id, bolsista);
+        return ResponseEntity.ok(atualizado);
+
     }
 
     @DeleteMapping("/{id}")

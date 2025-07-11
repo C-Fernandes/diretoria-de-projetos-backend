@@ -20,7 +20,7 @@ public class ProjetoResponse {
     private String numeroSipac;
     private String anoSipac;
     private String titulo;
-    private Boolean leiDeInformatica;
+    private Boolean leiDeInformatica, embrapii, sebrae, residencia;
     private double valor;
     private Date dataInicio;
     private Date dataFim;
@@ -29,4 +29,6 @@ public class ProjetoResponse {
     private String descricao;
     private Coordenador coordenador;
     private List<UUID> parceirosId;
+
+    private String categoria;
 }

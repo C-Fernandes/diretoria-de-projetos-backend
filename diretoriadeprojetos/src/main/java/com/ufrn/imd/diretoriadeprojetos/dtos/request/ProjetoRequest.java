@@ -17,14 +17,16 @@ import lombok.Setter;
 public class ProjetoRequest {
     private String numeroSipac;
     private String anoSipac;
-    private String nFunpec;
     private String titulo;
     private double valor;
     private String contaContrato;
     private Date dataInicio;
     private Date dataFim;
-    private boolean leiInformatica;
+    private boolean leiDeInformatica;
+    private boolean sebrae;
+    private boolean embrapii;
     private boolean residencia;
+
     private String categoria;
     private Long coordenadorId;
     private List<ProjetoParceiroRequest> parceirosId;

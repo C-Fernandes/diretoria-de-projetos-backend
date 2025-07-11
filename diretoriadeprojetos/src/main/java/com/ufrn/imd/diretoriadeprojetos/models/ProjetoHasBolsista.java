@@ -26,7 +26,6 @@ public class ProjetoHasBolsista {
     @EmbeddedId
     private ProjetoHasBolsistaId id;
 
-    // 1) Associação com Projeto (ID composto)
     @ManyToOne
     @MapsId("projetoParceiroId")
     @JsonBackReference("projeto-bolsistas")

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.services.ParceiroService;
 
@@ -23,7 +24,7 @@ public class ParceiroController {
     private ParceiroService parceiroService;
 
     @GetMapping
-    public List<Parceiro> listar() {
+    public List<ParceiroResponse> listar() {
         return parceiroService.findAll();
     }
 

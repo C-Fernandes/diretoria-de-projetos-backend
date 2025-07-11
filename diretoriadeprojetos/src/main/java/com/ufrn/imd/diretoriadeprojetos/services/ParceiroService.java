@@ -1,14 +1,18 @@
 package com.ufrn.imd.diretoriadeprojetos.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ParceiroRepository;
 
 @Service
@@ -17,8 +21,33 @@ public class ParceiroService {
     @Autowired
     private ParceiroRepository parceiroRepository;
 
-    public List<Parceiro> findAll() {
-        return parceiroRepository.findAll();
+    public List<ParceiroResponse> findAll() {
+        List<Parceiro> parceiros = parceiroRepository.findAll();
+
+        return parceiros.stream().map(parceiro -> {
+
+            ParceiroResponse response = new ParceiroResponse();
+
+            response.setId(parceiro.getId());
+            response.setCnpj(parceiro.getCnpj());
+            response.setNome(parceiro.getNome());
+
+            if (parceiro.getTipoFinanciamento() != null) {
+                response.setTipoFinanciamento(parceiro.getTipoFinanciamento().name());
+            }
+
+            if (parceiro.getProjetos() != null) {
+                List<ProjetoId> projetoIds = parceiro.getProjetos().stream()
+                        .map(projetoParceiro -> projetoParceiro.getProjeto().getId())
+                        .collect(Collectors.toList());
+
+                response.setProjetos(projetoIds);
+            } else {
+                response.setProjetos(new ArrayList<>());
+            }
+            return response;
+
+        }).collect(Collectors.toList());
     }
 
     public Optional<Parceiro> findById(UUID id) {
