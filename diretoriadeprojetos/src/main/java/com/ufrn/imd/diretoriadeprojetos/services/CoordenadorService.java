@@ -29,12 +29,6 @@ public class CoordenadorService {
                     "A matrícula '" + coordenador.getMatricula() + "' já está em uso.");
         }
 
-        coordenadorRepository.findByEmail(coordenador.getEmail())
-                .ifPresent(coordenadorExistente -> {
-                    throw new UsedField(
-                            "O e-mail '" + coordenador.getEmail() + "' já está em uso.");
-                });
-
         return coordenadorRepository.save(coordenador);
     }
 

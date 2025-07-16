@@ -9,7 +9,7 @@ public enum TipoFinanciamento {
         if (nomeEsfera == null) {
             return null;
         }
-        // Remove acentos e converte para maiúsculas para comparação case-insensitive
+
         String normalizedName = nomeEsfera.toUpperCase()
                 .replace("Á", "A")
                 .replace("É", "E")

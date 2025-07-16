@@ -17,7 +17,7 @@ import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.services.CoordenadorService;
 
 @RestController
-@RequestMapping("/coordenadores") // Configuração CORS
+@RequestMapping("/coordenadores")
 public class CoordenadorController {
 
     @Autowired

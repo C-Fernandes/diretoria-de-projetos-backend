@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class ProjetoResponse {
     private String contaContrato;
     private String status;
     private String descricao;
+    private TipoFinanciamento tipoFinanciamento;
     private Coordenador coordenador;
     private List<UUID> parceirosId;
 

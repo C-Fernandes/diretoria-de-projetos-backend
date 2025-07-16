@@ -28,7 +28,7 @@ public class ProjetoController {
     private ProjetoService projetoService;
 
     @GetMapping
-    public List<ProjetoResponse> listarTodos() {
+    public List<ProjetoResponse> findAll() {
         return projetoService.findAll();
     }
 

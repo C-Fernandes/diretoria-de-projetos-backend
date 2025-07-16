@@ -5,12 +5,18 @@ import org.springframework.stereotype.Component;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
+import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +44,7 @@ public class ProjetoMapper {
         response.setDescricao(projeto.getDescricao());
         response.setCoordenador(projeto.getCoordenador());
         response.setCategoria(projeto.getCategoria());
+        response.setTipoFinanciamento(encontrarTipoFinanciamento(projeto));
 
         if (projeto.getParceiros() != null) {
             List<UUID> parceirosIds = projeto.getParceiros().stream()
@@ -118,5 +125,37 @@ public class ProjetoMapper {
         }
 
         return respostaProjeto;
+    }
+
+    public TipoFinanciamento encontrarTipoFinanciamento(Projeto projeto) {
+        List<String> ordemPrioridade = Arrays.asList("EMPRESA", "SEBRAE", "UFRN", "EMBRAPII", "FUNPEC");
+        Map<String, Parceiro> parceirosPorTipo = new HashMap<>();
+
+        for (ProjetoParceiro projetoParceiro : projeto.getParceiros()) {
+            Parceiro parceiro = projetoParceiro.getParceiro();
+            String nomeParceiro = parceiro.getNome().toUpperCase();
+
+            if (nomeParceiro.contains("FUNPEC")) {
+                parceirosPorTipo.put("FUNPEC", parceiro);
+            } else if (nomeParceiro.contains("EMBRAPII")) {
+                parceirosPorTipo.put("EMBRAPII", parceiro);
+            } else if (nomeParceiro.contains("UFRN")) {
+                parceirosPorTipo.put("UFRN", parceiro);
+            } else if (nomeParceiro.contains("SEBRAE")) {
+                parceirosPorTipo.put("SEBRAE", parceiro);
+            } else {
+                parceirosPorTipo.put("EMPRESA", parceiro);
+            }
+        }
+
+        TipoFinanciamento tipoFinanciamento = null;
+        for (String tipo : ordemPrioridade) {
+            if (parceirosPorTipo.containsKey(tipo)) {
+                tipoFinanciamento = parceirosPorTipo.get(tipo).getTipoFinanciamento();
+                break;
+            }
+        }
+
+        return tipoFinanciamento;
     }
 }
