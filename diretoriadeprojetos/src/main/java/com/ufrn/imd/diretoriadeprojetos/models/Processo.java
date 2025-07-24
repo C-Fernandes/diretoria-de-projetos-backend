@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProcessoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,29 +19,29 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Processo {
 
     @EmbeddedId
     private ProcessoId id;
-
     @Column(nullable = false)
     private String nome;
+    private ProjetoId projetoId;
     @Column
     private long idProcesso;
     @Column(nullable = false)
     private Date dataInicio;
-    private String status;
+    private String observacao;
     @ManyToOne
     @JoinColumn(name = "coordenador_matricula", nullable = false)
     private Coordenador coordenador;
-
     private double valor;
     @Column(nullable = false)
     private String financiador;

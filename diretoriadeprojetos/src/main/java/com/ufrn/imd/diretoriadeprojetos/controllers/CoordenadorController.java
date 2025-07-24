@@ -35,22 +35,22 @@ public class CoordenadorController {
         return ResponseEntity.ok(coordenadores);
     }
 
-    @GetMapping("/{matricula}")
-    public ResponseEntity<Coordenador> buscarPorMatricula(@PathVariable Long matricula) {
-        return coordenadorService.buscarPorMatricula(matricula)
+    @GetMapping("/{siape}")
+    public ResponseEntity<Coordenador> buscarPorSiape(@PathVariable Long siape) {
+        return coordenadorService.buscarPorSiape(siape)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{matricula}")
-    public ResponseEntity<Coordenador> atualizar(@PathVariable Long matricula, @RequestBody Coordenador coordenador) {
-        Coordenador atualizado = coordenadorService.update(matricula, coordenador);
+    @PutMapping("/{siape}")
+    public ResponseEntity<Coordenador> atualizar(@PathVariable Long siape, @RequestBody Coordenador coordenador) {
+        Coordenador atualizado = coordenadorService.update(siape, coordenador);
         return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/{matricula}")
-    public ResponseEntity<Void> deletar(@PathVariable Long matricula) {
-        coordenadorService.deletar(matricula);
+    @DeleteMapping("/{siape}")
+    public ResponseEntity<Void> deletar(@PathVariable Long siape) {
+        coordenadorService.deletar(siape);
         return ResponseEntity.noContent().build();
     }
 }

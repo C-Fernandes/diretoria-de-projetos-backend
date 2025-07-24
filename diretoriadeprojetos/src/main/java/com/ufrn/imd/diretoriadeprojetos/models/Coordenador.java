@@ -21,7 +21,7 @@ import lombok.Setter;
 public class Coordenador {
 
     @Id
-    private Long matricula;
+    private Long siape;
 
     private String nome;
     @JsonIgnore
@@ -34,11 +34,11 @@ public class Coordenador {
         this.email = email;
         this.nome = nome;
         this.UnidadeAcademica = unidade;
-        this.matricula = idDocente;
+        this.siape = idDocente;
     }
 
     public Coordenador(Long siapeCoordenador, String nomeCoordenador) {
-        this.matricula = siapeCoordenador;
+        this.siape = siapeCoordenador;
         this.nome = nomeCoordenador;
     }
 }

@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.PatchExchange;
 import org.springframework.http.MediaType;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProcessoMapper;
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProcessoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Processo;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
@@ -26,24 +29,27 @@ import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
 
 @RestController
 @RequestMapping("/processos")
-public class ProcessosController {
+public class ProcessoController {
     @Autowired
     private ProcessoService processoService;
 
+    @Autowired
+    private ProcessoMapper processoMapper;
+
     @GetMapping
-    public List<ProjetoResponse> findAll() {
+    public List<ProcessoResponse> findAll() {
         return processoService.findAll();
     }
 
     @GetMapping(params = "externo")
-    public ResponseEntity<List<ProjetoResponse>> buscarNaApi(
+    public ResponseEntity<ProcessoResponse> buscarNaApi(
             @RequestParam long radical,
             @RequestParam long numProtocolo, @RequestParam long ano, @RequestParam long dv) {
 
-        List<ProjetoResponse> fluxo = processoService
+        ProcessoResponse processo = processoService
                 .buscarNaApi(radical, numProtocolo, ano, dv);
-
-        return ResponseEntity.ok(fluxo);
+        System.out.println("Enviando no controller: " + processo.toString());
+        return ResponseEntity.ok(processo);
     }
 
     @DeleteMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
@@ -56,16 +62,8 @@ public class ProcessosController {
     }
 
     @PostMapping
-    public ResponseEntity<Processo> criar(@RequestBody Processo processo) {
+    public ResponseEntity<ProcessoResponse> criar(@RequestBody ProcessoRequest processo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(processoService.salvar(processo));
-    }
-
-    @GetMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
-    public ResponseEntity<ProjetoResponse> findById(
-            @PathVariable long radical, @PathVariable long numProtocolo, @PathVariable long ano,
-            @PathVariable long dv) {
-        ProjetoResponse projeto = processoService.findById(radical, numProtocolo, ano, dv);
-        return ResponseEntity.ok(projeto);
     }
 
 }

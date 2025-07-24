@@ -24,9 +24,9 @@ public class CoordenadorService {
     private CoordenadorClient coordenadorClient;
 
     public Coordenador save(Coordenador coordenador) {
-        if (coordenadorRepository.existsById(coordenador.getMatricula())) {
+        if (coordenadorRepository.existsById(coordenador.getSiape())) {
             throw new UsedField(
-                    "A matrícula '" + coordenador.getMatricula() + "' já está em uso.");
+                    "O siape '" + coordenador.getSiape() + "' já está em uso.");
         }
 
         return coordenadorRepository.save(coordenador);
@@ -36,17 +36,17 @@ public class CoordenadorService {
         return coordenadorRepository.findAll();
     }
 
-    public Optional<Coordenador> buscarPorMatricula(Long matricula) {
-        return coordenadorRepository.findById(matricula);
+    public Optional<Coordenador> buscarPorSiape(Long siape) {
+        return coordenadorRepository.findById(siape);
     }
 
-    public Coordenador update(Long matricula, Coordenador coordenadorAtualizado) {
+    public Coordenador update(Long siape, Coordenador coordenadorAtualizado) {
 
-        Coordenador coordenadorParaAtualizar = coordenadorRepository.findById(matricula)
+        Coordenador coordenadorParaAtualizar = coordenadorRepository.findById(siape)
                 .orElseThrow(() -> new MissingFields(
-                        "Coordenador com matrícula " + matricula + " não encontrado."));
+                        "Coordenador com matrícula " + siape + " não encontrado."));
 
-        validarEmail(coordenadorAtualizado.getEmail(), matricula);
+        validarEmail(coordenadorAtualizado.getEmail(), siape);
         coordenadorParaAtualizar.setNome(coordenadorAtualizado.getNome());
         coordenadorParaAtualizar.setEmail(coordenadorAtualizado.getEmail());
         coordenadorParaAtualizar.setUnidadeAcademica(coordenadorAtualizado.getUnidadeAcademica());
@@ -55,20 +55,20 @@ public class CoordenadorService {
         return coordenadorRepository.save(coordenadorParaAtualizar);
     }
 
-    private void validarEmail(String email, Long matriculaExcluidaDaBusca) {
+    private void validarEmail(String email, Long siapeExcluidaDaBusca) {
         coordenadorRepository.findByEmail(email)
                 .ifPresent(coordenadorExistente -> {
-                    if (!coordenadorExistente.getMatricula().equals(matriculaExcluidaDaBusca)) {
+                    if (!coordenadorExistente.getSiape().equals(siapeExcluidaDaBusca)) {
                         throw new UsedField(
                                 "O e-mail '" + email + "' já está em uso por outro coordenador.");
                     }
                 });
     }
 
-    public void deletar(Long matricula) {
-        Coordenador coordenador = coordenadorRepository.findById(matricula)
+    public void deletar(Long siape) {
+        Coordenador coordenador = coordenadorRepository.findById(siape)
                 .orElseThrow(() -> new MissingFields(
-                        "Coordenador com matrícula " + matricula + " não encontrado. Impossível deletar."));
+                        "Coordenador com matrícula " + siape + " não encontrado. Impossível deletar."));
 
         if (!coordenador.getProjetos().isEmpty()) {
             throw new ResourceConflict(
