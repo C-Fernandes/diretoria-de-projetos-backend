@@ -63,8 +63,8 @@ public class BolsistaController {
 
     @GetMapping("/{numeroSipac}/{anoSipac}")
     public ResponseEntity<List<Bolsista>> findByProjeto(
-            @PathVariable String numeroSipac,
-            @PathVariable String anoSipac) {
+            @PathVariable long numeroSipac,
+            @PathVariable long anoSipac) {
 
         List<Bolsista> bolsistas = bolsistaService.findByProjeto(new ProjetoId(numeroSipac, anoSipac));
         return ResponseEntity.ok(bolsistas);

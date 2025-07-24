@@ -45,8 +45,8 @@ public class ProjetoController {
 
     @DeleteMapping("/{numeroSipac}/{anoSipac}")
     public ResponseEntity<List<ProjetoResponse>> delete(
-            @PathVariable String numeroSipac,
-            @PathVariable String anoSipac) {
+            @PathVariable long numeroSipac,
+            @PathVariable long anoSipac) {
 
         projetoService.delete(numeroSipac, anoSipac);
         return ResponseEntity.noContent().build();
@@ -58,10 +58,10 @@ public class ProjetoController {
     }
 
     @GetMapping("/{numeroSipac}/{anoSipac}")
-    public ResponseEntity<Projeto> findById(
-            @PathVariable String numeroSipac,
-            @PathVariable String anoSipac) {
-        Projeto projeto = projetoService.findById(new ProjetoId(numeroSipac, anoSipac));
+    public ResponseEntity<ProjetoResponse> findById(
+            @PathVariable long numeroSipac,
+            @PathVariable long anoSipac) {
+        ProjetoResponse projeto = projetoService.findById(new ProjetoId(numeroSipac, anoSipac));
         return ResponseEntity.ok(projeto);
     }
 

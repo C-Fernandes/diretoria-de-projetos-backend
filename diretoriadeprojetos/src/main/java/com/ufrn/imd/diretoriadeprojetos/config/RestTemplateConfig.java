@@ -12,7 +12,6 @@ public class RestTemplateConfig {
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
 
-        // Configura a base URL para a API da UFRN
         DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("https://api.info.ufrn.br");
         restTemplate.setUriTemplateHandler(uriBuilderFactory);
 

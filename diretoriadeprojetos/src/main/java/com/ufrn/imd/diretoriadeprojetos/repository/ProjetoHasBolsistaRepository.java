@@ -17,6 +17,6 @@ public interface ProjetoHasBolsistaRepository extends JpaRepository<ProjetoHasBo
     List<ProjetoHasBolsista> findById_ProjetoParceiroId_ProjetoId(ProjetoId projetoId);
 
     Optional<List<ProjetoHasBolsista>> findByBolsistaAndProjetoParceiroNumeroFunpec(Bolsista bolsista,
-            String numeroFunpec);
+            long numeroFunpec);
 
 }

@@ -8,5 +8,5 @@ import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 
 public interface ProjetoParceiroRepository extends JpaRepository<ProjetoParceiro, ProjetoParceiroId> {
-    Optional<ProjetoParceiro> findByNumeroFunpec(String numeroFunpec);
+    Optional<ProjetoParceiro> findByNumeroFunpec(long numeroFunpec);
 }

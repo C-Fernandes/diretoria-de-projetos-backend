@@ -14,7 +14,7 @@ public class ProjetoParceiroService {
     @Autowired
     ProjetoParceiroRepository projetoParceiroRepository;
 
-    public Optional<ProjetoParceiro> findByNumeroFunpec(String numeroFunpec) {
+    public Optional<ProjetoParceiro> findByNumeroFunpec(long numeroFunpec) {
         return projetoParceiroRepository.findByNumeroFunpec(numeroFunpec);
     }
 

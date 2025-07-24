@@ -18,7 +18,7 @@ public class BolsistaResponse {
     private String curso;
     private Boolean docente;
     private String formacao;
-    private String numeroFunpec, numeroSipac, anoSipac;
+    private long numeroFunpec, numeroSipac, anoSipac;
     private Date dataInicio, dataFim;
     private int rubrica;
     private Double valor;

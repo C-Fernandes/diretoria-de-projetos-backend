@@ -132,13 +132,10 @@ public class BolsistaService {
     public List<Bolsista> findByProjeto(ProjetoId projetoId) {
         List<ProjetoHasBolsista> associacoes = projetoHasBolsistaService.findByIdProjetoId(projetoId);
 
-        // Se a lista de associações for nula ou vazia, retorna uma lista de bolsistas
-        // vazia.
         if (associacoes == null || associacoes.isEmpty()) {
             return Collections.emptyList(); // Ou new ArrayList<>();
         }
 
-        // Se houver associações, mapeia para a lista de bolsistas.
         return associacoes.stream()
                 .map(ProjetoHasBolsista::getBolsista)
                 .collect(Collectors.toList());
@@ -211,15 +208,23 @@ public class BolsistaService {
                         csvRecord.getRecordNumber()));
 
                 DadosPagamento dados = parseCsvRecord(csvRecord);
-                // Assumindo que você tenha um método toString() em DadosPagamento para
-                // facilitar o log
+
                 System.out.println("[DEBUG] Dados lidos da linha: " + dados.toString());
 
                 // 1. Valida e busca o projeto.
                 System.out.println("[DEBUG] Buscando projeto com número FUNPEC: " + dados.getNumeroProjeto());
-                ProjetoParceiro projeto = projetoParceiroService.findByNumeroFunpec(dados.getNumeroProjeto())
-                        .orElseThrow(() -> new RuntimeException(
-                                "Projeto com número FUNPEC " + dados.getNumeroProjeto() + " não encontrado."));
+                Optional<ProjetoParceiro> projetoOpt = projetoParceiroService
+                        .findByNumeroFunpec(Long.parseLong(dados.getNumeroProjeto()));
+
+                if (!projetoOpt.isPresent()) {
+                    System.err.println("Projeto " + dados.getNumeroProjeto() + " não encontrado");
+                    continue;
+                } else {
+                    System.err.println("Projeto " + dados.getNumeroProjeto() + " encontrado");
+
+                }
+                ProjetoParceiro projeto = projetoOpt.get();
+
                 System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProjeto().getTitulo());
 
                 // 2. Busca o bolsista pelo nome.
@@ -244,7 +249,10 @@ public class BolsistaService {
         } catch (IOException | DateTimeParseException e) {
             System.err.println("[ERRO] OCORREU UM ERRO GRAVE DURANTE O PROCESSAMENTO DO CSV: " + e.getMessage());
             e.printStackTrace();
+            System.out.println(e.getMessage());
             throw new RuntimeException("Erro ao processar o arquivo CSV: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.out.println(e);
         }
         return pagamentosProcessados;
     }
@@ -410,11 +418,24 @@ public class BolsistaService {
         dados.setNumeroRubrica(extrairNumeroDaRubrica(csvRecord.get("Rubrica")));
         dados.setNivel(csvRecord.get("Nível"));
         dados.setTipo(csvRecord.get("Tipo"));
-        dados.setCargaHoraria(Integer.parseInt(csvRecord.get("Carga Horária").replace(",", ".")));
+        dados.setCargaHoraria(parseCargaHoraria(csvRecord.get("Carga Horária")));
         dados.setValor(Double.parseDouble(csvRecord.get("Valor (R$)").replace(".", "").replace(",", ".")));
         dados.setCompetencia(csvRecord.get("Competência"));
 
         return dados;
+    }
+
+    private int parseCargaHoraria(String cargaHorariaStr) {
+        if (cargaHorariaStr != null && !cargaHorariaStr.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(cargaHorariaStr.trim());
+            } catch (NumberFormatException e) {
+                System.err.println("Erro ao converter Carga Horária: '" + cargaHorariaStr + "' para inteiro.");
+
+                return 0;
+            }
+        }
+        return 0; // Retorna 0 ou um valor padrão se a string for vazia ou nula
     }
 
     private Integer extrairNumeroDaRubrica(String rubricaCompleta) {

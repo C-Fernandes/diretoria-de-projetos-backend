@@ -27,7 +27,7 @@ public class Projeto {
     private ProjetoId id;
 
     @Column(unique = true)
-    private String idProjeto;
+    private long idProjeto;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descricao;
@@ -61,7 +61,7 @@ public class Projeto {
         this.id = new ProjetoId();
     }
 
-    public Projeto(String numeroSipac, String anoSipac) {
+    public Projeto(long numeroSipac, long anoSipac) {
         this.id = new ProjetoId(numeroSipac, anoSipac);
     }
 }

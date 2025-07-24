@@ -15,8 +15,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProjetoRequest {
-    private String numeroSipac;
-    private String anoSipac;
+    private long numeroSipac;
+    private long anoSipac;
     private String titulo;
     private double valor;
     private String contaContrato;

@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Aditivo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

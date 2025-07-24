@@ -15,5 +15,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProjetoParceiroRequest {
     private UUID parceiroId;
-    private String numeroFunpec;
+    private long numeroFunpec;
 }

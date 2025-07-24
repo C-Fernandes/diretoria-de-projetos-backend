@@ -19,9 +19,9 @@ import lombok.Setter;
 public class ProjetoId implements Serializable {
 
     @Column(name = "numero_sipac")
-    private String numeroSipac;
+    private long numeroSipac;
 
     @Column(name = "ano_sipac")
-    private String anoSipac;
+    private long anoSipac;
 
 }

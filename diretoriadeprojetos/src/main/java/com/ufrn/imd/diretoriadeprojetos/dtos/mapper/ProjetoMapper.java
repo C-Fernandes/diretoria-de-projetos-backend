@@ -91,8 +91,8 @@ public class ProjetoMapper {
         ProjetoResponse respostaProjeto = new ProjetoResponse();
         respostaProjeto.setContaContrato(projetoApi.getNumeroFormatado());
         respostaProjeto.setCoordenador(coordenador);
-        respostaProjeto.setNumeroSipac(projetoApi.getNumero().toString());
-        respostaProjeto.setAnoSipac(projetoApi.getAno().toString());
+        respostaProjeto.setNumeroSipac(projetoApi.getNumero());
+        respostaProjeto.setAnoSipac(projetoApi.getAno());
         respostaProjeto.setDescricao(projetoApi.getJustificativa());
         respostaProjeto.setTitulo(projetoApi.getTituloProjeto());
         respostaProjeto.setDataFim(projetoApi.getFimExecucao());

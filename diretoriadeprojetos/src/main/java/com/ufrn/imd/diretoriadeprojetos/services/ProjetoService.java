@@ -55,18 +55,19 @@ public class ProjetoService {
                 .collect(Collectors.toList());
     }
 
-    public Projeto findById(ProjetoId id) {
-        return projetoRepository.findById(id)
+    public ProjetoResponse findById(ProjetoId id) {
+        Projeto projeto = projetoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+        return projetoMapper.toResponse(projeto);
     }
 
     public Projeto salvar(ProjetoRequest projetoDto) {
         System.out.println("Projeto dto: " + projetoDto);
 
-        if (projetoDto.getNumeroSipac() == null || projetoDto.getNumeroSipac().isBlank()) {
+        if (projetoDto.getNumeroSipac() >= 0) {
             throw new MissingFields("O número SIPAC do projeto é obrigatório.");
         }
-        if (projetoDto.getAnoSipac() == null || projetoDto.getAnoSipac().isBlank()) {
+        if (projetoDto.getAnoSipac() >= 0) {
             throw new MissingFields("O ano SIPAC do projeto é obrigatório.");
         }
         if (projetoDto.getContaContrato() == null || projetoDto.getContaContrato().isBlank()) {
@@ -181,7 +182,7 @@ public class ProjetoService {
         return coordenador;
     }
 
-    public void delete(String numeroSipac, String anoSipac) {
+    public void delete(long numeroSipac, long anoSipac) {
         Projeto projetoParaDeletar = projetoRepository.findById(new ProjetoId(numeroSipac, anoSipac))
                 .orElseThrow(() -> new EntityNotFound("Projeto " + numeroSipac + "/" + anoSipac + " não encontrado."));
 
@@ -258,8 +259,8 @@ public class ProjetoService {
             ProjetoParceiro parceiroAtual = parceirosAtuaisMap.get(parceiroReq.getParceiroId());
 
             if (parceiroAtual != null) {
-                String funpecAtual = parceiroAtual.getNumeroFunpec();
-                String funpecNovo = parceiroReq.getNumeroFunpec();
+                long funpecAtual = parceiroAtual.getNumeroFunpec();
+                long funpecNovo = parceiroReq.getNumeroFunpec();
 
                 boolean funpecFoiAlterado = !Objects.equals(funpecAtual, funpecNovo);
 

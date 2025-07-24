@@ -27,7 +27,7 @@ public class ProjetoHasBolsistaService {
 
     }
 
-    public Optional<List<ProjetoHasBolsista>> findBolsistaInProjeto(Bolsista bolsista, String numeroProjeto) {
+    public Optional<List<ProjetoHasBolsista>> findBolsistaInProjeto(Bolsista bolsista, long numeroProjeto) {
         return projetoHasBolsistaRepository.findByBolsistaAndProjetoParceiroNumeroFunpec(bolsista, numeroProjeto);
     }
 

@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjetoResponse {
 
-    private String numeroSipac;
-    private String anoSipac;
+    private long numeroSipac;
+    private long anoSipac;
     private String titulo;
     private Boolean leiDeInformatica, embrapii, sebrae, residencia;
     private double valor;

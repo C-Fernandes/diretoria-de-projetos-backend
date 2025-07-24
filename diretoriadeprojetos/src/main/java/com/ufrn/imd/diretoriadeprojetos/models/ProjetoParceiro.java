@@ -46,7 +46,7 @@ public class ProjetoParceiro {
     private Parceiro parceiro;
 
     @Column(unique = true)
-    private String numeroFunpec;
+    private long numeroFunpec;
 
     private Double valorContribuicao;
 
