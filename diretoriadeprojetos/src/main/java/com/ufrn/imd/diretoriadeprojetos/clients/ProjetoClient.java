@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ufrn.imd.diretoriadeprojetos.auth.AuthApiService;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.AuthApiProperties;
 
@@ -31,14 +30,12 @@ public class ProjetoClient {
 
                 if (token == null) {
                         System.err.println("Erro: token é nulo");
-                        return List.of(); // ou lançar exceção
+                        return List.of();
                 }
-
                 String url = UriComponentsBuilder.fromUriString("/projeto-convenio/v1/projetos")
                                 .queryParam("numero", numero)
                                 .queryParam("ano", ano)
                                 .toUriString();
-
                 HttpHeaders headers = new HttpHeaders();
                 headers.setBearerAuth(token);
                 headers.set("X-api-key", authProps.getXApiKey());
