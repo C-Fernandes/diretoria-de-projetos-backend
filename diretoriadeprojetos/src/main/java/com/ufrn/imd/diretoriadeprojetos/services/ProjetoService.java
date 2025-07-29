@@ -28,7 +28,7 @@ import com.ufrn.imd.diretoriadeprojetos.errors.ResourceConflict;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoRepository;
@@ -64,10 +64,10 @@ public class ProjetoService {
     public Projeto salvar(ProjetoRequest projetoDto) {
         System.out.println("Projeto dto: " + projetoDto);
 
-        if (projetoDto.getNumeroSipac() >= 0) {
+        if (projetoDto.getNumeroSipac() <= 0) {
             throw new MissingFields("O número SIPAC do projeto é obrigatório.");
         }
-        if (projetoDto.getAnoSipac() >= 0) {
+        if (projetoDto.getAnoSipac() <= 0) {
             throw new MissingFields("O ano SIPAC do projeto é obrigatório.");
         }
         if (projetoDto.getContaContrato() == null || projetoDto.getContaContrato().isBlank()) {
@@ -85,7 +85,7 @@ public class ProjetoService {
         Projeto projeto = projetoMapper.toEntity(projetoDto, coordenador);
 
         ProjetoId projetoId = projeto.getId();
-        List<ProjetoParceiro> projetoParceiros = projetoDto.getParceirosId().stream().map(parceiroReq -> {
+        List<ProjetoHasParceiro> projetoParceiros = projetoDto.getParceirosId().stream().map(parceiroReq -> {
 
             if (parceiroReq.getParceiroId() == null) {
                 throw new MissingFields("ID do Parceiro é obrigatório.");
@@ -95,12 +95,12 @@ public class ProjetoService {
             Parceiro parceiro = parceiroService.findById(parceiroId)
                     .orElseThrow(() -> new EntityNotFound("Parceiro com ID " + parceiroId + " não encontrado"));
 
-            ProjetoParceiro projetoParceiro = new ProjetoParceiro();
+            ProjetoHasParceiro projetoParceiro = new ProjetoHasParceiro();
             projetoParceiro.setId(new ProjetoParceiroId(projetoId, parceiroId));
             projetoParceiro.setProjeto(projeto);
             projetoParceiro.setParceiro(parceiro);
-
-            projetoParceiro.setNumeroFunpec(parceiroReq.getNumeroFunpec());
+            if (parceiroReq.getNumeroFunpec() != null)
+                projetoParceiro.setNumeroFunpec(parceiroReq.getNumeroFunpec());
 
             return projetoParceiro;
 
@@ -109,23 +109,21 @@ public class ProjetoService {
         return projetoRepository.save(projeto);
     }
 
-    public List<ProjetoResponse> buscarNaApi(String numeroSipac, String anoSipac) {
-        List<ProjetoApiResponse> projetos = projetoClient.buscarNaApi(numeroSipac, anoSipac);
+    public ProjetoResponse buscarNaApi(long numeroSipac, long anoSipac) {
+        ProjetoApiResponse projetos = projetoClient.buscarNaApi(numeroSipac, anoSipac);
 
         return tratarProjeto(projetos);
     }
 
-    private List<ProjetoResponse> tratarProjeto(List<ProjetoApiResponse> projetos) {
-        return projetos.stream().map(projetoApi -> {
+    private ProjetoResponse tratarProjeto(ProjetoApiResponse projeto) {
+        System.out.println("tratar projeto: " + projeto.toString());
+        Coordenador coordenador = coordenadorService.findOrCreateBySiape(projeto.getSiapeCoordenador());
+        List<Parceiro> parceiros = verificarEProcessarParceiros(
+                origemRecursoClient.buscarParceirosNaApi(projeto.getIdProjeto()),
+                origemRecursoClient.buscarFontesDeRenda(projeto.getIdProjeto()));
 
-            Coordenador coordenador = verificarCoordenador(projetoApi.getSiapeCoordenador(),
-                    projetoApi.getNomeCoordenador());
-            List<Parceiro> parceiros = verificarParceiros(
-                    origemRecursoClient.buscarParceirosNaApi(projetoApi.getIdProjeto()),
-                    origemRecursoClient.buscarFontesDeRenda(projetoApi.getIdProjeto()));
+        return projetoMapper.toResponse(projeto, coordenador, parceiros);
 
-            return projetoMapper.toResponse(projetoApi, coordenador, parceiros);
-        }).collect(Collectors.toList());
     }
 
     public List<Parceiro> verificarParceiros(List<ParceiroApiResponse> listaDeParceiros,
@@ -220,14 +218,14 @@ public class ProjetoService {
         projetoParaAtualizar.getParceiros().clear();
 
         if (projetoDto.getParceirosId() != null && !projetoDto.getParceirosId().isEmpty()) {
-            List<ProjetoParceiro> novosProjetoParceiros = prepararListaParceiros(projetoDto, projetoParaAtualizar);
+            List<ProjetoHasParceiro> novosProjetoParceiros = prepararListaParceiros(projetoDto, projetoParaAtualizar);
             projetoParaAtualizar.getParceiros().addAll(novosProjetoParceiros);
         }
 
         return projetoRepository.save(projetoParaAtualizar);
     }
 
-    private List<ProjetoParceiro> prepararListaParceiros(ProjetoRequest projetoDto, Projeto projeto) {
+    private List<ProjetoHasParceiro> prepararListaParceiros(ProjetoRequest projetoDto, Projeto projeto) {
         return projetoDto.getParceirosId().stream().map(parceiroReq -> {
             if (parceiroReq.getParceiroId() == null) {
                 throw new MissingFields("ID do Parceiro é obrigatório.");
@@ -236,7 +234,7 @@ public class ProjetoService {
             Parceiro parceiro = parceiroService.findById(parceiroId)
                     .orElseThrow(() -> new EntityNotFound("Parceiro com ID " + parceiroId + " não encontrado"));
 
-            ProjetoParceiro projetoParceiro = new ProjetoParceiro();
+            ProjetoHasParceiro projetoParceiro = new ProjetoHasParceiro();
             ProjetoParceiroId projetoParceiroId = new ProjetoParceiroId(projeto.getId(), parceiro.getId());
             projetoParceiro.setId(projetoParceiroId);
             projetoParceiro.setProjeto(projeto);
@@ -252,11 +250,11 @@ public class ProjetoService {
             return;
         }
 
-        Map<UUID, ProjetoParceiro> parceirosAtuaisMap = projetoAtual.getParceiros().stream()
+        Map<UUID, ProjetoHasParceiro> parceirosAtuaisMap = projetoAtual.getParceiros().stream()
                 .collect(Collectors.toMap(p -> p.getParceiro().getId(), Function.identity()));
 
         for (ProjetoParceiroRequest parceiroReq : projetoDto.getParceirosId()) {
-            ProjetoParceiro parceiroAtual = parceirosAtuaisMap.get(parceiroReq.getParceiroId());
+            ProjetoHasParceiro parceiroAtual = parceirosAtuaisMap.get(parceiroReq.getParceiroId());
 
             if (parceiroAtual != null) {
                 long funpecAtual = parceiroAtual.getNumeroFunpec();
@@ -276,5 +274,30 @@ public class ProjetoService {
                 }
             }
         }
+    }
+
+    public ProjetoResponse salvarProjetoPorProcesso(long numeroSipac, long anoSipac) {
+        ProjetoResponse projeto = buscarNaApi(numeroSipac, anoSipac);
+        ProjetoRequest projetoRequest = projetoMapper.toRequest(projeto);
+        return projetoMapper.toResponse(salvar(projetoRequest));
+    }
+
+    private List<Parceiro> verificarEProcessarParceiros(List<ParceiroApiResponse> listaDeParceirosApi,
+            List<OrigemRecursoApiResponse> origensRecursosApi) {
+
+        Map<String, OrigemRecursoApiResponse> origensMap = origensRecursosApi.stream()
+                .collect(Collectors.toMap(OrigemRecursoApiResponse::getNomeFinanciador, Function.identity(),
+                        (o1, o2) -> o1));
+
+        return listaDeParceirosApi.stream().map(parceiroApi -> {
+            Parceiro parceiro = parceiroService.findOrCreateFromApi(parceiroApi);
+
+            OrigemRecursoApiResponse origem = origensMap.get(parceiro.getNome());
+            if (origem != null) {
+                TipoFinanciamento tipo = TipoFinanciamento.fromNome(origem.getNomeEsferaOrigemRecurso());
+                parceiro.setTipoFinanciamento(tipo);
+            }
+            return parceiroService.save(parceiro);
+        }).collect(Collectors.toList());
     }
 }

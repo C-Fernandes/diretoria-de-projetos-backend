@@ -35,7 +35,7 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
@@ -67,7 +67,7 @@ public class BolsistaService {
                 .map(vinculo -> {
                     BolsistaResponse dto = new BolsistaResponse();
                     Bolsista bolsista = vinculo.getBolsista();
-                    ProjetoParceiro projetoParceiro = vinculo.getProjetoParceiro();
+                    ProjetoHasParceiro projetoParceiro = vinculo.getProjetoParceiro();
 
                     // Mapeia os dados do Bolsista
                     if (bolsista != null) {
@@ -213,7 +213,7 @@ public class BolsistaService {
 
                 // 1. Valida e busca o projeto.
                 System.out.println("[DEBUG] Buscando projeto com número FUNPEC: " + dados.getNumeroProjeto());
-                Optional<ProjetoParceiro> projetoOpt = projetoParceiroService
+                Optional<ProjetoHasParceiro> projetoOpt = projetoParceiroService
                         .findByNumeroFunpec(Long.parseLong(dados.getNumeroProjeto()));
 
                 if (!projetoOpt.isPresent()) {
@@ -223,7 +223,7 @@ public class BolsistaService {
                     System.err.println("Projeto " + dados.getNumeroProjeto() + " encontrado");
 
                 }
-                ProjetoParceiro projeto = projetoOpt.get();
+                ProjetoHasParceiro projeto = projetoOpt.get();
 
                 System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProjeto().getTitulo());
 
@@ -257,7 +257,7 @@ public class BolsistaService {
         return pagamentosProcessados;
     }
 
-    private void gerenciarVinculoExistente(Bolsista bolsista, ProjetoParceiro projeto, DadosPagamento dados) {
+    private void gerenciarVinculoExistente(Bolsista bolsista, ProjetoHasParceiro projeto, DadosPagamento dados) {
         System.out.println("  [FLUXO] -> Entrou em gerenciarVinculoExistente para: " + bolsista.getNome());
 
         // Converte a competência do CSV para o formato YearMonth
@@ -335,7 +335,7 @@ public class BolsistaService {
         }
     }
 
-    private void criarNovoBolsistaComVinculo(ProjetoParceiro projeto, DadosPagamento dados) {
+    private void criarNovoBolsistaComVinculo(ProjetoHasParceiro projeto, DadosPagamento dados) {
         System.out.println("  [AÇÃO] -> Entrou em criarNovoBolsistaComVinculo.");
         Bolsista novoBolsista = new Bolsista(dados.getNomeMembro());
         if ("docente".equalsIgnoreCase(dados.getTipo())) {
@@ -350,7 +350,7 @@ public class BolsistaService {
         criarNovoVinculo(novoBolsista, projeto, dados);
     }
 
-    private void criarNovoVinculo(Bolsista bolsista, ProjetoParceiro projeto, DadosPagamento dados) {
+    private void criarNovoVinculo(Bolsista bolsista, ProjetoHasParceiro projeto, DadosPagamento dados) {
         System.out.println("    [AÇÃO] -> Entrou em criarNovoVinculo para: " + bolsista.getNome());
         ProjetoHasBolsistaId novoId = new ProjetoHasBolsistaId(projeto.getId(), bolsista.getId());
 

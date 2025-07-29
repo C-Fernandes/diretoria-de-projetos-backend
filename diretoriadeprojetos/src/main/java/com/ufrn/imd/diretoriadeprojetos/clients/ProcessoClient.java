@@ -63,6 +63,7 @@ public class ProcessoClient {
             ProcessoApiResponse[] processos = response.getBody();
 
             if (processos != null && processos.length > 0) {
+                System.out.println("na api: " + processos[0].toString());
                 return processos[0];
             } else {
                 throw new ApiError("Nenhum processo encontrado");
@@ -70,7 +71,7 @@ public class ProcessoClient {
 
         } catch (RestClientException e) {
             System.out.println("!!! ERRO: Ocorreu um erro de comunicação ao chamar a API.");
-            e.printStackTrace(); // Mantém o print do stack trace completo
+            e.printStackTrace();
             throw new ApiError("Erro de comunicação com a API externa");
         }
     }
@@ -82,7 +83,7 @@ public class ProcessoClient {
         }
 
         String url = UriComponentsBuilder.fromPath("processo/v1/movimentacoes")
-                .queryParam("id-processo", processoId)
+                .queryParam("id-processo", processoId).queryParam("limit", 100)
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();

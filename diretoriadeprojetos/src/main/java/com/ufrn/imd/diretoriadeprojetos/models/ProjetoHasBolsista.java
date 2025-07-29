@@ -34,7 +34,7 @@ public class ProjetoHasBolsista {
             @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac"),
             @JoinColumn(name = "parceiro_id", referencedColumnName = "parceiro_id")
     })
-    private ProjetoParceiro projetoParceiro;
+    private ProjetoHasParceiro projetoParceiro;
     @ManyToOne
     @JsonBackReference("bolsista-projetos")
     @MapsId("bolsistaUuid")

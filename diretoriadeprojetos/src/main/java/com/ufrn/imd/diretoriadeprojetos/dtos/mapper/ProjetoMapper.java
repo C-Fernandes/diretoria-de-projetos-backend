@@ -2,6 +2,7 @@ package com.ufrn.imd.diretoriadeprojetos.dtos.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
@@ -9,7 +10,7 @@ import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class ProjetoMapper {
         response.setDescricao(projeto.getDescricao());
         response.setCoordenador(projeto.getCoordenador());
         response.setCategoria(projeto.getCategoria());
+        response.setIdProjeto(projeto.getIdProjeto());
         response.setTipoFinanciamento(encontrarTipoFinanciamento(projeto));
 
         if (projeto.getParceiros() != null) {
@@ -78,6 +80,7 @@ public class ProjetoMapper {
         projeto.setStatus(projetoDto.getStatus());
         projeto.setDescricao(projetoDto.getDescricao());
         projeto.setCoordenador(coordenador);
+        projeto.setIdProjeto(projetoDto.getIdProjeto());
 
         return projeto;
     }
@@ -99,6 +102,7 @@ public class ProjetoMapper {
         respostaProjeto.setDataInicio(projetoApi.getInicioExecucao());
         respostaProjeto.setStatus(projetoApi.getDescricaoStatus());
         respostaProjeto.setValor(projetoApi.getValorProjeto());
+        respostaProjeto.setIdProjeto(projetoApi.getIdProjeto());
         String tipoProjeto = projetoApi.getTipoProjeto();
         String tipoConvenio = projetoApi.getTipoConvenio();
 
@@ -127,11 +131,50 @@ public class ProjetoMapper {
         return respostaProjeto;
     }
 
+    public ProjetoRequest toRequest(ProjetoResponse response) {
+        if (response == null) {
+            return null;
+        }
+
+        ProjetoRequest request = new ProjetoRequest();
+        request.setNumeroSipac(response.getNumeroSipac());
+        request.setAnoSipac(response.getAnoSipac());
+        request.setTitulo(response.getTitulo());
+        request.setValor(response.getValor());
+        request.setContaContrato(response.getContaContrato());
+        request.setDataInicio(response.getDataInicio());
+        request.setDataFim(response.getDataFim());
+        request.setLeiDeInformatica(Boolean.TRUE.equals(response.getLeiDeInformatica()));
+        request.setSebrae(Boolean.TRUE.equals(response.getSebrae()));
+        request.setEmbrapii(Boolean.TRUE.equals(response.getEmbrapii()));
+        request.setResidencia(Boolean.TRUE.equals(response.getResidencia()));
+        request.setCategoria(response.getCategoria());
+        request.setStatus(response.getStatus());
+        request.setDescricao(response.getDescricao());
+        request.setIdProjeto(response.getIdProjeto());
+        if (response.getCoordenador() != null) {
+            request.setCoordenadorId(response.getCoordenador().getSiape());
+        }
+
+        if (response.getParceirosId() != null && !response.getParceirosId().isEmpty()) {
+            List<ProjetoParceiroRequest> parceiroRequests = response.getParceirosId().stream()
+                    .map(uuid -> {
+                        ProjetoParceiroRequest ppr = new ProjetoParceiroRequest();
+                        ppr.setParceiroId(uuid);
+                        return ppr;
+                    })
+                    .collect(Collectors.toList());
+            request.setParceirosId(parceiroRequests);
+        }
+
+        return request;
+    }
+
     public TipoFinanciamento encontrarTipoFinanciamento(Projeto projeto) {
         List<String> ordemPrioridade = Arrays.asList("EMPRESA", "SEBRAE", "UFRN", "EMBRAPII", "FUNPEC");
         Map<String, Parceiro> parceirosPorTipo = new HashMap<>();
 
-        for (ProjetoParceiro projetoParceiro : projeto.getParceiros()) {
+        for (ProjetoHasParceiro projetoParceiro : projeto.getParceiros()) {
             Parceiro parceiro = projetoParceiro.getParceiro();
             String nomeParceiro = parceiro.getNome().toUpperCase();
 

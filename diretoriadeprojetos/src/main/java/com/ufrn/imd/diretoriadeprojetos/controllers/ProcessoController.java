@@ -1,6 +1,7 @@
 package com.ufrn.imd.diretoriadeprojetos.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,11 +35,14 @@ public class ProcessoController {
     private ProcessoService processoService;
 
     @Autowired
+    private ProjetoService projetoService;
+
+    @Autowired
     private ProcessoMapper processoMapper;
 
     @GetMapping
     public List<ProcessoResponse> findAll() {
-        return processoService.findAll();
+        return processoService.findAll().stream().map(processoMapper::toResponse).collect(Collectors.toList());
     }
 
     @GetMapping(params = "externo")
@@ -50,6 +54,15 @@ public class ProcessoController {
                 .buscarNaApi(radical, numProtocolo, ano, dv);
         System.out.println("Enviando no controller: " + processo.toString());
         return ResponseEntity.ok(processo);
+    }
+
+    @GetMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
+    public ResponseEntity<ProcessoResponse> findById(
+            @PathVariable long radical,
+            @PathVariable long numProtocolo, @PathVariable long ano, @PathVariable long dv) {
+
+        return ResponseEntity
+                .ok(processoMapper.toResponse(processoService.findById(radical, numProtocolo, ano, dv).get()));
     }
 
     @DeleteMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
@@ -64,6 +77,19 @@ public class ProcessoController {
     @PostMapping
     public ResponseEntity<ProcessoResponse> criar(@RequestBody ProcessoRequest processo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(processoService.salvar(processo));
+    }
+
+    @PostMapping("/{numeroSipac}/{anoSipac}")
+    public ResponseEntity<ProjetoResponse> criarProjetoPorProcesso(@PathVariable long numeroSipac,
+            @PathVariable long anoSipac) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(projetoService.salvarProjetoPorProcesso(numeroSipac, anoSipac));
+    }
+
+    @GetMapping("/atualizarTodos")
+    public ResponseEntity<List<ProcessoResponse>> atualizarTodos() {
+        return ResponseEntity.ok(
+                processoService.atualizarTodos().stream().map(processoMapper::toResponse).collect(Collectors.toList()));
     }
 
 }

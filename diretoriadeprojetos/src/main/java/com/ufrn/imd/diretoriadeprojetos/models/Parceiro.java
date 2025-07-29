@@ -40,7 +40,7 @@ public class Parceiro {
     private TipoFinanciamento tipoFinanciamento;
     @JsonIgnore
     @OneToMany(mappedBy = "parceiro", cascade = CascadeType.ALL)
-    private List<ProjetoParceiro> projetos = new ArrayList<>();
+    private List<ProjetoHasParceiro> projetos = new ArrayList<>();
 
     public Parceiro(Long idParticipe, String nome) {
 

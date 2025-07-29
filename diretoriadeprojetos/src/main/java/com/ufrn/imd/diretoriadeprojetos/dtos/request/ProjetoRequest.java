@@ -1,6 +1,6 @@
 package com.ufrn.imd.diretoriadeprojetos.dtos.request;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -18,6 +18,7 @@ public class ProjetoRequest {
     private long numeroSipac;
     private long anoSipac;
     private String titulo;
+    private long idProjeto;
     private double valor;
     private String contaContrato;
     private Date dataInicio;

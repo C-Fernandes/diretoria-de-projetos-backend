@@ -18,7 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class ProcessoResponse {
-    private long radical, numProtocolo, ano, dv, processoId;
+    private long radical, numProtocolo, ano, dv, idProcesso, numeroSipac, anoSipac;
     private String nome, financiador, observacao;
     private Date dataInicio;
     private Coordenador coordenador;

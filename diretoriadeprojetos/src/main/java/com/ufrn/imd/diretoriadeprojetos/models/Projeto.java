@@ -44,7 +44,7 @@ public class Projeto {
     private Coordenador coordenador;
     @JsonManagedReference
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjetoParceiro> parceiros = new ArrayList<>();
+    private List<ProjetoHasParceiro> parceiros = new ArrayList<>();
 
     @Column(nullable = false)
     private Date dataFim;

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
 import jakarta.persistence.CascadeType;

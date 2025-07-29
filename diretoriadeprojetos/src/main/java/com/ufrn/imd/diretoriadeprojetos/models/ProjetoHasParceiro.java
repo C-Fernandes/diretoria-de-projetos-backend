@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjetoParceiro {
+public class ProjetoHasParceiro {
 
     @EmbeddedId
     private ProjetoParceiroId id;
@@ -46,7 +46,7 @@ public class ProjetoParceiro {
     private Parceiro parceiro;
 
     @Column(unique = true)
-    private long numeroFunpec;
+    private Long numeroFunpec;
 
     private Double valorContribuicao;
 

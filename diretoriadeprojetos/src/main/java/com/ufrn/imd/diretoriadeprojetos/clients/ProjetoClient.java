@@ -25,12 +25,14 @@ public class ProjetoClient {
         @Autowired
         private AuthApiProperties authProps;
 
-        public List<ProjetoApiResponse> buscarNaApi(String numero, String ano) {
+        public ProjetoApiResponse buscarNaApi(long numero, long ano) {
+
+                System.out.println("buscando com: " + numero + ", " + ano);
                 String token = authApiService.solicitarToken();
 
                 if (token == null) {
                         System.err.println("Erro: token é nulo");
-                        return List.of();
+                        return null;
                 }
                 String url = UriComponentsBuilder.fromUriString("/projeto-convenio/v1/projetos")
                                 .queryParam("numero", numero)
@@ -52,15 +54,16 @@ public class ProjetoClient {
 
                         ProjetoApiResponse[] projetosArray = response.getBody();
                         if (projetosArray != null) {
-                                return List.of(projetosArray);
+                                return projetosArray[0];
                         } else {
-                                return List.of();
+                                return null;
                         }
                 } catch (Exception e) {
                         System.err.println("Erro ao chamar /projeto-convenio/v1/projetos: " + e.getMessage());
                         e.printStackTrace();
-                        return List.of();
+
                 }
+                return null;
         }
 
 }

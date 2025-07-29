@@ -10,6 +10,7 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
 import com.ufrn.imd.diretoriadeprojetos.models.Processo;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProcessoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
 @Component
 public class ProcessoMapper {
@@ -50,7 +51,7 @@ public class ProcessoMapper {
         processo.setNome(processoRequest.getNome());
         processo.setObservacao(processoRequest.getObservacao());
         processo.setValor(processoRequest.getValor());
-
+        processo.setProjetoId(new ProjetoId(processoRequest.getNumeroSipac(), processoRequest.getAnoSipac()));
         processo.setCoordenador(coordenador);
 
         return processo;
@@ -72,9 +73,13 @@ public class ProcessoMapper {
         response.setNome(processo.getNome());
         response.setDataInicio(processo.getDataInicio());
         response.setObservacao(processo.getObservacao());
+        response.setIdProcesso(processo.getIdProcesso());
         response.setValor(processo.getValor());
         response.setFinanciador(processo.getFinanciador());
-
+        if (processo.getProjetoId() != null) {
+            response.setAnoSipac(processo.getProjetoId().getAnoSipac());
+            response.setNumeroSipac(processo.getProjetoId().getNumeroSipac());
+        }
         response.setCoordenador(processo.getCoordenador());
 
         response.setMovimentacoes(processo.getMovimentacoes());

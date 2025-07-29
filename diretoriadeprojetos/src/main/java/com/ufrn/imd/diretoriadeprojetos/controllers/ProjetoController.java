@@ -33,11 +33,11 @@ public class ProjetoController {
     }
 
     @GetMapping(params = "externo", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ProjetoResponse>> buscarNaApi(
-            @RequestParam String numeroSipac,
-            @RequestParam String anoSipac) {
+    public ResponseEntity<ProjetoResponse> buscarNaApi(
+            @RequestParam long numeroSipac,
+            @RequestParam long anoSipac) {
 
-        List<ProjetoResponse> fluxo = projetoService
+        ProjetoResponse fluxo = projetoService
                 .buscarNaApi(numeroSipac, anoSipac);
 
         return ResponseEntity.ok(fluxo);

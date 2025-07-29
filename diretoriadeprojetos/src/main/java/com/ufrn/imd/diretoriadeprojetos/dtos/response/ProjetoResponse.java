@@ -27,6 +27,7 @@ public class ProjetoResponse {
     private Date dataFim;
     private String contaContrato;
     private String status;
+    private long idProjeto;
     private String descricao;
     private TipoFinanciamento tipoFinanciamento;
     private Coordenador coordenador;

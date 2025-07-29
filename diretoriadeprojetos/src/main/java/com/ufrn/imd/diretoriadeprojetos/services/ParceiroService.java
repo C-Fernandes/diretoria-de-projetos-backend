@@ -9,11 +9,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ParceiroRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ParceiroService {
@@ -92,6 +95,22 @@ public class ParceiroService {
         }
 
         return false;
+    }
+
+    @Transactional
+    public Parceiro findOrCreateFromApi(ParceiroApiResponse parceiroApi) {
+        if (parceiroApi == null)
+            throw new IllegalArgumentException("Dados do parceiro da API não podem ser nulos.");
+        Optional<Parceiro> parceiroOpt = findByIdParticipe(parceiroApi.getIdParticipe());
+        if (parceiroOpt.isPresent()) {
+            return parceiroOpt.get();
+        }
+        parceiroOpt = findByNome(parceiroApi.getNomeParticipe());
+        if (parceiroOpt.isPresent()) {
+            return parceiroOpt.get();
+        }
+        Parceiro novoParceiro = new Parceiro(parceiroApi.getIdParticipe(), parceiroApi.getNomeParticipe());
+        return parceiroRepository.save(novoParceiro);
     }
 
 }
