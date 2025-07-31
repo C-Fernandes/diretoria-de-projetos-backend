@@ -12,7 +12,6 @@ public class AuthApiProperties {
 
     @Value("${auth.client-id}")
     private String clientId;
-
     @Value("${auth.client-secret}")
     private String clientSecret;
     @Value("${auth.x-api-key}")
