@@ -1,0 +1,64 @@
+package com.ufrn.imd.diretoriadeprojetos.services;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.UserResponse;
+import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
+import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
+import com.ufrn.imd.diretoriadeprojetos.repository.UsuarioRepository;
+
+import jakarta.transaction.Transactional;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UsuarioRepository userRepository;
+    @Autowired
+    private JavaMailSender emailSender;
+
+    public List<Usuario> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Transactional
+    public void updateApprovalStatus(UUID userId, boolean isApproved) {
+        Usuario userToUpdate = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFound("Usuário não encontrado com o ID: " + userId));
+
+        userToUpdate.setAprovadoPeloAdmin(isApproved);
+        userRepository.save(userToUpdate);
+
+        if (isApproved) {
+            sendApprovalNotification(userToUpdate);
+        }
+    }
+
+    private void sendApprovalNotification(Usuario user) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("noreply@diretoriodeprojetos.com");
+            message.setTo(user.getEmail());
+            message.setSubject("✅ Sua conta no Diretório de Projetos foi Aprovada");
+
+            String text = String.format(
+                    "Olá, %s!\n\nBoas notícias! Sua conta no Diretório de Projetos da UFRN foi revisada e aprovada por um administrador.\n\n"
+                            +
+                            "Você já pode fazer login para acessar a plataforma.\n\n" +
+                            "Atenciosamente,\nEquipe do Diretório de Projetos - IMD/UFRN",
+                    user.getNome());
+
+            message.setText(text);
+            emailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("ERRO: O e-mail de aprovação para " + user.getEmail() + " não pôde ser enviado. Causa: "
+                    + e.getMessage());
+        }
+    }
+}

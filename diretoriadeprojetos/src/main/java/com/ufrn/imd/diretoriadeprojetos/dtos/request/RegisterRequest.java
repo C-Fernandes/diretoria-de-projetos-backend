@@ -16,7 +16,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "O nome é obrigatório!")
     @Size(max = 45, message = "O nome não pode ter mais de 45 caracteres!")
-    private String name;
+    private String nome;
 
     @NotBlank(message = "O e-mail é obrigatório!")
     @Email(message = "O e-mail deve ser válido!")
@@ -24,8 +24,6 @@ public class RegisterRequest {
 
     @NotBlank(message = "A senha é obrigatória!")
     @Size(min = 6, max = 20, message = "A senha deve ter entre 6 e 20 caracteres!")
-    private String password;
+    private String senha;
 
-    @NotBlank(message = "A confirmação de senha é obrigatória!")
-    private String confirmPassword;
 }

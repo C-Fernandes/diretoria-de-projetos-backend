@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import com.ufrn.imd.diretoriadeprojetos.auth.JwtAuthFilter;
 
 @Configuration
@@ -32,19 +37,37 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 return http
-                                .csrf(csrf -> csrf.disable()) // Desabilita CSRF pois usamos JWT (stateless)
+                                .cors(Customizer.withDefaults()) // ✅ 1. APLICA A CONFIGURAÇÃO DE CORS
+                                .csrf(csrf -> csrf.disable())
                                 .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sessão
-                                                                                                         // stateless
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(authorize -> authorize
-                                                // Rotas públicas que não precisam de autenticação
-                                                .requestMatchers(HttpMethod.POST, "/auth/registrar").permitAll()
-                                                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                                                // Todas as outras rotas precisam de autenticação
+                                                .requestMatchers(HttpMethod.POST, "/users/registrar").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                                                 .anyRequest().authenticated())
-                                // Adiciona nosso filtro JWT antes do filtro padrão do Spring
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                                 .build();
+        }
+
+        /**
+         * ✅ 2. ESTE BEAN DEFINE AS REGRAS DE CORS.
+         * Ele permite que seu front-end (ex: http://localhost:5173) acesse a API.
+         */
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                // A origem do seu front-end
+                configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+                // Métodos HTTP permitidos
+                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+                // Cabeçalhos permitidos
+                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                // Permite o envio de credenciais
+                configuration.setAllowCredentials(true);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration); // Aplica a todas as rotas
+                return source;
         }
 
         @Bean
