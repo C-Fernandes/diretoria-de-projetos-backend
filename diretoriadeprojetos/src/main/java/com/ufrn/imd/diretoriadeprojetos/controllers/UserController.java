@@ -26,7 +26,7 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.response.LoginResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.UserResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.Role;
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
 import com.ufrn.imd.diretoriadeprojetos.services.AuthService;
 import com.ufrn.imd.diretoriadeprojetos.services.UserService;
 
@@ -58,7 +58,7 @@ public class UserController {
     @IsVisitante
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(
-            @AuthenticationPrincipal Usuario user) {
+            @AuthenticationPrincipal User user) {
         UserResponse response = new UserResponse(user);
         return ResponseEntity.ok(response);
     };
@@ -85,13 +85,10 @@ public class UserController {
             @PathVariable UUID user,
             @PathVariable String roleName) {
 
-        // Converte a String da URL para o Enum Role
         Role newRole = Role.valueOf(roleName.toUpperCase());
 
-        // Chama o serviço para fazer a alteração
         userService.updateUserRole(user, newRole);
 
-        // Retorna 200 OK com corpo vazio, assim como o método acima
         return ResponseEntity.ok().build();
     }
 }

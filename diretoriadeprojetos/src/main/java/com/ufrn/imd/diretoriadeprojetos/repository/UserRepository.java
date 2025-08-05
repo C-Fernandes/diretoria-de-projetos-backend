@@ -6,9 +6,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
-    Optional<Usuario> findByEmail(String email);
+public interface UserRepository extends JpaRepository<User, UUID> {
+    Optional<User> findByEmail(String email);
 }

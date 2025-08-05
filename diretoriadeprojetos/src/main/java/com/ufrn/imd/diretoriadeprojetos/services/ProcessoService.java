@@ -15,7 +15,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ufrn.imd.diretoriadeprojetos.clients.ProcessoClient;
+import com.ufrn.imd.diretoriadeprojetos.clients.ProcessClient;
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.MovimentacaoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProcessoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
@@ -37,7 +37,7 @@ public class ProcessoService {
 
     private final ProcessoRepository processoRepository;
     @Autowired
-    private ProcessoClient processoClient;
+    private ProcessClient processClient;
 
     @Autowired
     private ProcessoMapper processoMapper;
@@ -59,7 +59,7 @@ public class ProcessoService {
 
     public ProcessoResponse buscarNaApi(long radical, long numProtocolo, long ano, long dv) {
 
-        ProcessoApiResponse projetoApiResponse = processoClient.buscarProcesso(radical, numProtocolo, ano, dv);
+        ProcessoApiResponse projetoApiResponse = processClient.findProcess(radical, numProtocolo, ano, dv);
 
         String siapeString = projetoApiResponse.getSiape();
         if (siapeString == null || siapeString.isBlank()) {
@@ -127,8 +127,8 @@ public class ProcessoService {
     }
 
     private List<Movimentacao> buscarMovimentacoes(Processo processo) {
-        List<MovimentacaoApiResponse> movimentacoesApiResponse = processoClient
-                .buscarMovimetacoes(processo.getIdProcesso());
+        List<MovimentacaoApiResponse> movimentacoesApiResponse = processClient
+                .findMovements(processo.getIdProcesso());
         List<Movimentacao> movimentacoesMapeadas = new ArrayList<>();
         for (MovimentacaoApiResponse movimentacaoApi : movimentacoesApiResponse) {
             Movimentacao movimentacao = movimentacaoMapper.toEntity(movimentacaoApi, processo);

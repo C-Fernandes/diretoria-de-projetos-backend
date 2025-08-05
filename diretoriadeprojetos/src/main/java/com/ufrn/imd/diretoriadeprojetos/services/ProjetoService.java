@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ufrn.imd.diretoriadeprojetos.clients.OrigemRecursoClient;
-import com.ufrn.imd.diretoriadeprojetos.clients.ProjetoClient;
+import com.ufrn.imd.diretoriadeprojetos.clients.ProjectClient;
+import com.ufrn.imd.diretoriadeprojetos.clients.ResourceOriginClient;
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
@@ -43,11 +43,11 @@ public class ProjetoService {
     @Autowired
     private ParceiroService parceiroService;
     @Autowired
-    private ProjetoClient projetoClient;
+    private ProjectClient projectClient;
     @Autowired
     private ProjetoMapper projetoMapper;
     @Autowired
-    private OrigemRecursoClient origemRecursoClient;
+    private ResourceOriginClient resourceOriginClient;
 
     public List<ProjetoResponse> findAll() {
         return projetoRepository.findAll().stream()
@@ -110,7 +110,7 @@ public class ProjetoService {
     }
 
     public ProjetoResponse buscarNaApi(long numeroSipac, long anoSipac) {
-        ProjetoApiResponse projetos = projetoClient.buscarNaApi(numeroSipac, anoSipac);
+        ProjetoApiResponse projetos = projectClient.findByNumberAndYear(numeroSipac, anoSipac);
 
         return tratarProjeto(projetos);
     }
@@ -119,8 +119,8 @@ public class ProjetoService {
         System.out.println("tratar projeto: " + projeto.toString());
         Coordenador coordenador = coordenadorService.findOrCreateBySiape(projeto.getSiapeCoordenador());
         List<Parceiro> parceiros = verificarEProcessarParceiros(
-                origemRecursoClient.buscarParceirosNaApi(projeto.getIdProjeto()),
-                origemRecursoClient.buscarFontesDeRenda(projeto.getIdProjeto()));
+                resourceOriginClient.findPartners(projeto.getIdProjeto()),
+                resourceOriginClient.findIncomeSources(projeto.getIdProjeto()));
 
         return projetoMapper.toResponse(projeto, coordenador, parceiros);
 

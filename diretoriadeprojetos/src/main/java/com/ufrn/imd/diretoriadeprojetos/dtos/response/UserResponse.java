@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.hibernate.id.uuid.UuidGenerator;
 
 import com.ufrn.imd.diretoriadeprojetos.enums.Role;
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,12 +23,12 @@ public class UserResponse {
     private Role role;
     private boolean aprovado;
 
-    public UserResponse(Usuario user) {
+    public UserResponse(User user) {
         this.id = user.getId();
-        this.nome = user.getNome();
+        this.nome = user.getName();
         this.email = user.getEmail();
         this.role = user.getRole();
-        this.aprovado = user.getAprovadoPeloAdmin();
+        this.aprovado = user.getIsAdminApproved();
     }
 
 };

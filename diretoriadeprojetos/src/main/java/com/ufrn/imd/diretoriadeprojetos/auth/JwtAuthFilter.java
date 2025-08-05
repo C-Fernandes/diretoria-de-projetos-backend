@@ -10,8 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
-import com.ufrn.imd.diretoriadeprojetos.repository.UsuarioRepository;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
+import com.ufrn.imd.diretoriadeprojetos.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UsuarioRepository usersRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             try {
                 UUID uuid = jwtUtil.validateTokenAndGetUserId(token);
-                Usuario user = usersRepository.findById(uuid)
+                User user = userRepository.findById(uuid)
                         .orElseThrow(
                                 () -> new RuntimeException("User not found"));
 

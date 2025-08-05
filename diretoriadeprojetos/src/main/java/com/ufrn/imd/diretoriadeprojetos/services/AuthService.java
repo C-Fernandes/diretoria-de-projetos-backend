@@ -18,50 +18,42 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.request.RegisterRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.LoginResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.UserResponse;
 import com.ufrn.imd.diretoriadeprojetos.errors.InvalidCredentials;
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
-import com.ufrn.imd.diretoriadeprojetos.repository.UsuarioRepository;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
+import com.ufrn.imd.diretoriadeprojetos.repository.UserRepository;
 
 @Service
 public class AuthService {
-
         @Autowired
-        private UsuarioRepository usuarioRepository;
-        @Autowired
-        private AuthenticationManager authenticationManager;
+        private UserRepository userRepository;
         @Autowired
         private PasswordEncoder passwordEncoder;
-
         @Autowired
         private JwtUtil jwtUtil;
 
         public void registrar(RegisterRequest request) {
-                if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
+                if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                         throw new RuntimeException("E-mail já cadastrado.");
                 }
                 String senhaCriptografada = passwordEncoder.encode(request.getSenha());
-                Usuario novoUsuario = new Usuario(request.getNome(), request.getEmail(), senhaCriptografada);
-                usuarioRepository.save(novoUsuario);
+                User novoUser = new User(request.getNome(), request.getEmail(), senhaCriptografada);
+                userRepository.save(novoUser);
         }
 
         public LoginResponse login(String email, String senha) {
-                // 1. Busca o usuário pelo e-mail
-                Usuario usuario = usuarioRepository.findByEmail(email)
+                User User = userRepository.findByEmail(email)
                                 .orElseThrow(InvalidCredentials::new);
 
-                // 2. Verifica manualmente se a senha corresponde
-                if (!passwordEncoder.matches(senha, usuario.getPassword())) {
+                if (!passwordEncoder.matches(senha, User.getPassword())) {
                         throw new InvalidCredentials();
                 }
-
-                // 3. Gera o token JWT (como antes)
-                String token = jwtUtil.generateToken(usuario.getId());
+                String token = jwtUtil.generateToken(User.getId());
 
                 UserResponse userDto = new UserResponse(
-                                usuario.getId(),
-                                usuario.getNome(),
-                                usuario.getEmail(),
-                                usuario.getRole(),
-                                usuario.getAprovadoPeloAdmin());
+                                User.getId(),
+                                User.getName(),
+                                User.getEmail(),
+                                User.getRole(),
+                                User.getIsAdminApproved());
 
                 return new LoginResponse(token, userDto);
         }

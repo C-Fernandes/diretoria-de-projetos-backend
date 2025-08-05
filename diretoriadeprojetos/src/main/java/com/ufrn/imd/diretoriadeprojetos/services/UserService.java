@@ -11,8 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.UserResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.Role;
 import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
-import com.ufrn.imd.diretoriadeprojetos.models.Usuario;
-import com.ufrn.imd.diretoriadeprojetos.repository.UsuarioRepository;
+import com.ufrn.imd.diretoriadeprojetos.models.User;
+import com.ufrn.imd.diretoriadeprojetos.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -20,20 +20,20 @@ import jakarta.transaction.Transactional;
 public class UserService {
 
     @Autowired
-    private UsuarioRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
     private JavaMailSender emailSender;
 
-    public List<Usuario> findAll() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
     @Transactional
     public void updateApprovalStatus(UUID userId, boolean isApproved) {
-        Usuario userToUpdate = userRepository.findById(userId)
+        User userToUpdate = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFound("Usuário não encontrado com o ID: " + userId));
 
-        userToUpdate.setAprovadoPeloAdmin(isApproved);
+        userToUpdate.setIsAdminApproved(isApproved);
         userRepository.save(userToUpdate);
 
         if (isApproved) {
@@ -41,7 +41,7 @@ public class UserService {
         }
     }
 
-    private void sendApprovalNotification(Usuario user) {
+    private void sendApprovalNotification(User user) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("noreply@diretoriodeprojetos.com");
@@ -53,7 +53,7 @@ public class UserService {
                             +
                             "Você já pode fazer login para acessar a plataforma.\n\n" +
                             "Atenciosamente,\nEquipe do Diretório de Projetos - IMD/UFRN",
-                    user.getNome());
+                    user.getName());
 
             message.setText(text);
             emailSender.send(message);
@@ -65,7 +65,7 @@ public class UserService {
 
     @Transactional
     public void updateUserRole(UUID userId, Role newRole) {
-        Usuario userToUpdate = userRepository.findById(userId)
+        User userToUpdate = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFound("Usuário não encontrado com o ID: " + userId));
 
         userToUpdate.setRole(newRole);
@@ -75,7 +75,7 @@ public class UserService {
         sendRoleChangeNotification(userToUpdate, newRole);
     }
 
-    private void sendRoleChangeNotification(Usuario user, Role newRole) {
+    private void sendRoleChangeNotification(User user, Role newRole) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("noreply@diretoriodeprojetos.com");
@@ -89,7 +89,7 @@ public class UserService {
                             "Se você não reconhece essa alteração ou acredita que foi um engano, por favor, entre em contato com o suporte.\n\n"
                             +
                             "Atenciosamente,\nEquipe do Diretório de Projetos - IMD/UFRN",
-                    user.getNome(),
+                    user.getName(),
                     newRole.toString() // Converte o Enum para String (ex: "ADMIN")
             );
 

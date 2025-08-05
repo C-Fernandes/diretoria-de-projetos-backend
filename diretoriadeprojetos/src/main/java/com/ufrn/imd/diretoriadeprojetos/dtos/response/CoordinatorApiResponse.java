@@ -12,7 +12,7 @@ import lombok.ToString;
 @Setter
 
 @ToString
-public class CoordenadorApiResponse {
+public class CoordinatorApiResponse {
     @JsonProperty("id-docente")
     private Long idDocente;
     @JsonProperty("nome")

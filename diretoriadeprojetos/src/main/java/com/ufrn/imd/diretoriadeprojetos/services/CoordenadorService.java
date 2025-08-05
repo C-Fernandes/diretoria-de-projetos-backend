@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ufrn.imd.diretoriadeprojetos.clients.CoordenadorClient;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.CoordenadorApiResponse;
+import com.ufrn.imd.diretoriadeprojetos.clients.CoordinatorClient;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.CoordinatorApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
 import com.ufrn.imd.diretoriadeprojetos.errors.ResourceConflict;
 import com.ufrn.imd.diretoriadeprojetos.errors.UsedField;
@@ -24,7 +24,7 @@ public class CoordenadorService {
     private CoordenadorRepository coordenadorRepository;
 
     @Autowired
-    private CoordenadorClient coordenadorClient;
+    private CoordinatorClient coordenadorClient;
 
     public Coordenador save(Coordenador coordenador) {
         if (coordenadorRepository.existsById(coordenador.getSiape())) {
@@ -82,9 +82,9 @@ public class CoordenadorService {
     }
 
     public Coordenador buscarCoordenadorApi(Long siape) {
-        List<CoordenadorApiResponse> coordenadores = coordenadorClient.buscarPorSiape(siape);
+        List<CoordinatorApiResponse> coordenadores = coordenadorClient.findBySiape(siape);
         if (!coordenadores.isEmpty()) {
-            CoordenadorApiResponse response = coordenadores.get(0);
+            CoordinatorApiResponse response = coordenadores.get(0);
             Coordenador coordenador = new Coordenador(response.getSiape(), response.getNome(), response.getEmail(),
                     response.getUnidade());
             return coordenador;

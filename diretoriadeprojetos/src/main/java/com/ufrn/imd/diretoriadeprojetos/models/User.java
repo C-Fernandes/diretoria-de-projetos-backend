@@ -21,45 +21,56 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "usuarios")
-@Data
+@Table(name = "users") // Plural é uma convenção comum para nomes de tabela
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Usuario implements UserDetails {
+public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String nome;
+
+    private String name;
+
     @Column(unique = true, nullable = false)
     private String email;
+
     @Column(nullable = false)
-    private String senha;
-    private Boolean aprovadoPeloAdmin = false;
+    private String password;
+
+    private Boolean isAdminApproved = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USUARIO;
+    private Role role = Role.USER; // Assumindo que o Enum Role também será traduzido
+
+    // Construtor para criar novos usuários de forma controlada
+    public User(String name, String email, String hashedPassword) {
+        this.name = name;
+        this.email = email;
+        this.password = hashedPassword;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        // Usando o email como username para o Spring Security
+        return this.email;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
-    @Override
-    public String getPassword() {
-        return this.senha;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    public Usuario(String name, String email2, String senhaCriptografada) {
-        this.nome = name;
-        this.email = email2;
-        this.senha = senhaCriptografada;
-    }
 }
