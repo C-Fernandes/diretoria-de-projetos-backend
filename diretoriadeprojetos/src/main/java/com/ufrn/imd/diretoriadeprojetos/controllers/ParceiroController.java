@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,7 @@ public class ParceiroController {
     public ResponseEntity<Parceiro> create(@RequestBody Parceiro parceiro) {
         return ResponseEntity.status(HttpStatus.CREATED).body(parceiroService.save(parceiro));
     }
+
     /*
      * @PutMapping("/{id}")
      * public ResponseEntity<Parceiro> update(@PathVariable UUID id, @RequestBody
@@ -47,11 +49,11 @@ public class ParceiroController {
      * return ResponseEntity.ok(parceiroService.update(id, parceiro));
      * 
      * }
-     * 
-     * @DeleteMapping("/{id}")
-     * public ResponseEntity<Void> delete(@PathVariable UUID id) {
-     * parceiroService.delete(id);
-     * return ResponseEntity.noContent().build();
-     * }
      */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        parceiroService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

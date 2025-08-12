@@ -22,17 +22,17 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProcessoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Processo;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectProcess;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
-import com.ufrn.imd.diretoriadeprojetos.services.ProcessoService;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
+import com.ufrn.imd.diretoriadeprojetos.services.ProcessService;
 import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
 
 @RestController
 @RequestMapping("/processos")
 public class ProcessoController {
     @Autowired
-    private ProcessoService processoService;
+    private ProcessService processoService;
 
     @Autowired
     private ProjetoService projetoService;
@@ -50,10 +50,10 @@ public class ProcessoController {
             @RequestParam long radical,
             @RequestParam long numProtocolo, @RequestParam long ano, @RequestParam long dv) {
 
-        ProcessoResponse processo = processoService
-                .buscarNaApi(radical, numProtocolo, ano, dv);
-        System.out.println("Enviando no controller: " + processo.toString());
-        return ResponseEntity.ok(processo);
+        ProjectProcess processo = processoService
+                .fetchFromApi(radical, numProtocolo, ano, dv);
+
+        return ResponseEntity.ok(processoMapper.toResponse(processo));
     }
 
     @GetMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
@@ -76,7 +76,8 @@ public class ProcessoController {
 
     @PostMapping
     public ResponseEntity<ProcessoResponse> criar(@RequestBody ProcessoRequest processo) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(processoService.salvar(processo));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(processoMapper.toResponse(processoService.save(processo)));
     }
 
     @PostMapping("/{numeroSipac}/{anoSipac}")
@@ -89,7 +90,7 @@ public class ProcessoController {
     @GetMapping("/atualizarTodos")
     public ResponseEntity<List<ProcessoResponse>> atualizarTodos() {
         return ResponseEntity.ok(
-                processoService.atualizarTodos().stream().map(processoMapper::toResponse).collect(Collectors.toList()));
+                processoService.updateAll().stream().map(processoMapper::toResponse).collect(Collectors.toList()));
     }
 
 }

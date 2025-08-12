@@ -28,12 +28,12 @@ public class AuthApiService {
     }
 
     public String fetchAccessToken() {
-        URI uri = UriComponentsBuilder.fromPath("/authz-server/oauth/token")
+        String uri = UriComponentsBuilder.fromPath("/authz-server/oauth/token")
                 .queryParam("grant_type", GRANT_TYPE_CLIENT_CREDENTIALS)
                 .queryParam("client_id", authProps.getClientId())
                 .queryParam("client_secret", authProps.getClientSecret())
                 .build()
-                .toUri();
+                .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));

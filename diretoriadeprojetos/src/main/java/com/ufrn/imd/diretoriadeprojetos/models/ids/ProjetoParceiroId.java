@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class ProjetoParceiroId implements Serializable {
-    private ProjetoId projetoId;
+    private ProjectId projetoId;
     private UUID parceiroId;
 
 }

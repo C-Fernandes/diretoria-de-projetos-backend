@@ -6,20 +6,20 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.stereotype.Component;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.MovimentacaoApiResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Movimentacao;
-import com.ufrn.imd.diretoriadeprojetos.models.Processo;
+import com.ufrn.imd.diretoriadeprojetos.models.Movement;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectProcess;
 
 @Component
 public class MovimentacaoMapper {
-    public Movimentacao toEntity(MovimentacaoApiResponse movimentacaoResponse, Processo processo) {
-        Movimentacao movimentacao = new Movimentacao();
+    public Movement toEntity(MovimentacaoApiResponse movimentacaoResponse, ProjectProcess processo) {
+        Movement movimentacao = new Movement();
 
-        movimentacao.setDataEnvioOrigem(movimentacaoResponse.getDataEnvioOrigem());
-        movimentacao.setDataRecebimentoDestino(movimentacaoResponse.getDataRecebimentoDestino());
+        movimentacao.setSentDate(movimentacaoResponse.getDataEnvioOrigem());
+        movimentacao.setReceivedDate(movimentacaoResponse.getDataRecebimentoDestino());
         movimentacao.setId(movimentacaoResponse.getIdMovimentacao());
-        movimentacao.setProcesso(processo);
-        movimentacao.setUnidadeDestino(movimentacaoResponse.getUnidadeDestino());
-        movimentacao.setUnidadeOrigem(movimentacaoResponse.getUnidadeOrigem());
+        movimentacao.setProcess(processo);
+        movimentacao.setDestinationUnit(movimentacaoResponse.getUnidadeDestino());
+        movimentacao.setOriginUnit(movimentacaoResponse.getUnidadeOrigem());
 
         return movimentacao;
     }

@@ -8,13 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
 
 @Repository
 public interface ProjetoHasBolsistaRepository extends JpaRepository<ProjetoHasBolsista, ProjetoHasBolsistaId> {
 
-    List<ProjetoHasBolsista> findById_ProjetoParceiroId_ProjetoId(ProjetoId projetoId);
+    List<ProjetoHasBolsista> findById_ProjetoParceiroId_ProjetoId(ProjectId projetoId);
 
     Optional<List<ProjetoHasBolsista>> findByBolsistaAndProjetoParceiroNumeroFunpec(Bolsista bolsista,
             long numeroFunpec);

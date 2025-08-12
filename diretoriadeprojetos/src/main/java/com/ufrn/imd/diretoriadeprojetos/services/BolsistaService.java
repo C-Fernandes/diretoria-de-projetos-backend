@@ -36,8 +36,9 @@ import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 import com.ufrn.imd.diretoriadeprojetos.repository.BolsistaRepository;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
@@ -90,8 +91,8 @@ public class BolsistaService {
                     if (projetoParceiro != null && projetoParceiro.getProjeto() != null) {
                         dto.setNumeroFunpec(projetoParceiro.getNumeroFunpec());
                         if (projetoParceiro.getProjeto().getId() != null) {
-                            dto.setNumeroSipac(projetoParceiro.getProjeto().getId().getNumeroSipac());
-                            dto.setAnoSipac(projetoParceiro.getProjeto().getId().getAnoSipac());
+                            dto.setNumeroSipac(projetoParceiro.getProjeto().getId().getSipacNumber());
+                            dto.setAnoSipac(projetoParceiro.getProjeto().getId().getSipacYear());
                         }
                     }
 
@@ -129,7 +130,7 @@ public class BolsistaService {
         bolsistaRepository.deleteById(id);
     }
 
-    public List<Bolsista> findByProjeto(ProjetoId projetoId) {
+    public List<Bolsista> findByProjeto(ProjectId projetoId) {
         List<ProjetoHasBolsista> associacoes = projetoHasBolsistaService.findByIdProjetoId(projetoId);
 
         if (associacoes == null || associacoes.isEmpty()) {
@@ -226,20 +227,21 @@ public class BolsistaService {
                 ProjetoHasParceiro projeto = projetoOpt.get();
 
                 System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProjeto().getTitulo());
-
-                // 2. Busca o bolsista pelo nome.
                 System.out.println("[DEBUG] Buscando bolsista com nome: '" + dados.getNomeMembro() + "'");
                 Optional<Bolsista> bolsistaOpt = findByNome(dados.getNomeMembro());
-
-                if (bolsistaOpt.isPresent()) {
-                    System.out.println("[FLUXO] Bolsista JÁ EXISTE. Entrando no fluxo de gerenciamento de vínculo...");
-                    gerenciarVinculoExistente(bolsistaOpt.get(), projeto, dados);
-                } else {
-                    System.out.println("[FLUXO] Bolsista NÃO EXISTE. Entrando no fluxo de criação de novo bolsista...");
-                    criarNovoBolsistaComVinculo(projeto, dados);
+                if (dados.getNumeroRubrica() == 18 || dados.getNumeroRubrica() == 20) {
+                    if (bolsistaOpt.isPresent()) {
+                        System.out.println(
+                                "[FLUXO] Bolsista JÁ EXISTE. Entrando no fluxo de gerenciamento de vínculo...");
+                        gerenciarVinculoExistente(bolsistaOpt.get(), projeto, dados);
+                    } else {
+                        System.out.println(
+                                "[FLUXO] Bolsista NÃO EXISTE. Entrando no fluxo de criação de novo bolsista...");
+                        criarNovoBolsistaComVinculo(projeto, dados);
+                    }
+                    pagamentosProcessados.add(dados);
+                    System.out.println("[SUCCESS] Linha " + csvRecord.getRecordNumber() + " processada com sucesso.");
                 }
-                pagamentosProcessados.add(dados);
-                System.out.println("[SUCCESS] Linha " + csvRecord.getRecordNumber() + " processada com sucesso.");
             }
 
             System.out.println("\n[INFO] ========================================================");

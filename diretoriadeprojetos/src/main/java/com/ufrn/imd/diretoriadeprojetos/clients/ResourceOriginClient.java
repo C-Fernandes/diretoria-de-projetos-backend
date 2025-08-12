@@ -116,7 +116,6 @@ public class ResourceOriginClient {
     }
 
     private String buildUrlForIncomeSources(Long projectId) {
-        // Ajustado para usar .fromPath, que cria uma URL relativa
         return UriComponentsBuilder.fromPath(INCOME_SOURCES_API_PATH)
                 .buildAndExpand(projectId)
                 .toUriString();

@@ -5,11 +5,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
 
 @Repository
-public interface CoordenadorRepository extends JpaRepository<Coordenador, Long> {
+public interface CoordinatorRepository extends JpaRepository<Coordinator, Long> {
 
-    Optional<Coordenador> findByEmail(String email);
+    Optional<Coordinator> findByEmail(String email);
 
 }

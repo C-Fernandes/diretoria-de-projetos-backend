@@ -18,27 +18,30 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coordenador {
+public class Coordinator {
 
     @Id
     private Long siape;
 
-    private String nome;
-    @JsonIgnore
-    @OneToMany(mappedBy = "coordenador", cascade = CascadeType.ALL)
-    private List<Projeto> projetos;
-    private String email;
-    private String UnidadeAcademica;
+    private String name;
 
-    public Coordenador(Long idDocente, String nome, String email, String unidade) {
+    @JsonIgnore
+    @OneToMany(mappedBy = "coordinator", cascade = CascadeType.ALL)
+    private List<Projeto> projects;
+
+    private String email;
+
+    private String academicUnit;
+
+    public Coordinator(Long siape, String name, String email, String academicUnit) {
         this.email = email;
-        this.nome = nome;
-        this.UnidadeAcademica = unidade;
-        this.siape = idDocente;
+        this.name = name;
+        this.academicUnit = academicUnit;
+        this.siape = siape;
     }
 
-    public Coordenador(Long siapeCoordenador, String nomeCoordenador) {
-        this.siape = siapeCoordenador;
-        this.nome = nomeCoordenador;
+    public Coordinator(Long siape, String name) {
+        this.siape = siape;
+        this.name = name;
     }
 }

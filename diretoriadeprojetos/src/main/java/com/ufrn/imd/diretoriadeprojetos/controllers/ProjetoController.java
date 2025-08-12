@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
 
 @RestController
@@ -63,7 +63,7 @@ public class ProjetoController {
     public ResponseEntity<ProjetoResponse> findById(
             @PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
-        ProjetoResponse projeto = projetoService.findById(new ProjetoId(numeroSipac, anoSipac));
+        ProjetoResponse projeto = projetoService.findById(new ProjectId(numeroSipac, anoSipac));
         return ResponseEntity.ok(projeto);
     }
 

@@ -25,11 +25,11 @@ import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
 import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
 import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
 import com.ufrn.imd.diretoriadeprojetos.errors.ResourceConflict;
-import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoRepository;
 
@@ -39,7 +39,7 @@ public class ProjetoService {
     private ProjetoRepository projetoRepository;
 
     @Autowired
-    private CoordenadorService coordenadorService;
+    private CoordinatorService coordenadorService;
     @Autowired
     private ParceiroService parceiroService;
     @Autowired
@@ -55,7 +55,7 @@ public class ProjetoService {
                 .collect(Collectors.toList());
     }
 
-    public ProjetoResponse findById(ProjetoId id) {
+    public ProjetoResponse findById(ProjectId id) {
         Projeto projeto = projetoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
         return projetoMapper.toResponse(projeto);
@@ -79,12 +79,12 @@ public class ProjetoService {
         if (projetoDto.getParceirosId() == null || projetoDto.getParceirosId().isEmpty()) {
             throw new MissingFields("Pelo menos um parceiro é obrigatório.");
         }
-        Coordenador coordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
+        Coordinator coordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
                 .orElseThrow(() -> new EntityNotFound("Coordenador não encontrado"));
 
         Projeto projeto = projetoMapper.toEntity(projetoDto, coordenador);
 
-        ProjetoId projetoId = projeto.getId();
+        ProjectId projetoId = projeto.getId();
         List<ProjetoHasParceiro> projetoParceiros = projetoDto.getParceirosId().stream().map(parceiroReq -> {
 
             if (parceiroReq.getParceiroId() == null) {
@@ -117,7 +117,7 @@ public class ProjetoService {
 
     private ProjetoResponse tratarProjeto(ProjetoApiResponse projeto) {
         System.out.println("tratar projeto: " + projeto.toString());
-        Coordenador coordenador = coordenadorService.findOrCreateBySiape(projeto.getSiapeCoordenador());
+        Coordinator coordenador = coordenadorService.findOrCreateBySiape(projeto.getSiapeCoordenador());
         List<Parceiro> parceiros = verificarEProcessarParceiros(
                 resourceOriginClient.findPartners(projeto.getIdProjeto()),
                 resourceOriginClient.findIncomeSources(projeto.getIdProjeto()));
@@ -158,22 +158,22 @@ public class ProjetoService {
         return parceiros;
     }
 
-    public Coordenador verificarCoordenador(Long siapeCoordenador, String nomeCoordenador) {
-        Optional<Coordenador> coordenadorOpt = coordenadorService.findById(siapeCoordenador);
+    public Coordinator verificarCoordenador(Long siapeCoordenador, String nomeCoordenador) {
+        Optional<Coordinator> coordenadorOpt = coordenadorService.findById(siapeCoordenador);
 
-        Coordenador coordenador;
+        Coordinator coordenador;
         if (coordenadorOpt.isPresent()) {
             coordenador = coordenadorOpt.get();
         } else {
 
-            Coordenador coordenadorApi = coordenadorService.buscarCoordenadorApi(siapeCoordenador);
+            Coordinator coordenadorApi = coordenadorService.buscarCoordenadorApi(siapeCoordenador);
 
             if (coordenadorApi != null) {
                 coordenador = coordenadorService.save(coordenadorApi);
 
             } else {
                 coordenador = coordenadorService
-                        .save(new Coordenador(siapeCoordenador, nomeCoordenador));
+                        .save(new Coordinator(siapeCoordenador, nomeCoordenador));
             }
         }
 
@@ -181,15 +181,15 @@ public class ProjetoService {
     }
 
     public void delete(long numeroSipac, long anoSipac) {
-        Projeto projetoParaDeletar = projetoRepository.findById(new ProjetoId(numeroSipac, anoSipac))
+        Projeto projetoParaDeletar = projetoRepository.findById(new ProjectId(numeroSipac, anoSipac))
                 .orElseThrow(() -> new EntityNotFound("Projeto " + numeroSipac + "/" + anoSipac + " não encontrado."));
 
         projetoRepository.delete(projetoParaDeletar);
     }
 
-    public Projeto update(ProjetoId id, ProjetoRequest projetoDto) {
+    public Projeto update(ProjectId id, ProjetoRequest projetoDto) {
         Projeto projetoParaAtualizar = projetoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFound("Projeto " + id.getNumeroSipac() + "/" + id.getAnoSipac()
+                .orElseThrow(() -> new EntityNotFound("Projeto " + id.getSipacNumber() + "/" + id.getSipacYear()
                         + " não encontrado para atualização."));
 
         validarAlteracaoFunpecComBolsistas(projetoDto, projetoParaAtualizar);
@@ -197,7 +197,7 @@ public class ProjetoService {
         if (projetoDto.getCoordenadorId() == null) {
             throw new MissingFields("Coordenador é obrigatório.");
         }
-        Coordenador novoCoordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
+        Coordinator novoCoordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
                 .orElseThrow(() -> new EntityNotFound(
                         "Coordenador com ID " + projetoDto.getCoordenadorId() + " não encontrado."));
 

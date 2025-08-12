@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.services.BolsistaService;
 
 @RestController
@@ -66,7 +66,7 @@ public class BolsistaController {
             @PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
 
-        List<Bolsista> bolsistas = bolsistaService.findByProjeto(new ProjetoId(numeroSipac, anoSipac));
+        List<Bolsista> bolsistas = bolsistaService.findByProjeto(new ProjectId(numeroSipac, anoSipac));
         return ResponseEntity.ok(bolsistas);
     }
 

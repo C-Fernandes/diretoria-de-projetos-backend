@@ -7,82 +7,85 @@ import org.springframework.stereotype.Component;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProcessoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
-import com.ufrn.imd.diretoriadeprojetos.models.Processo;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProcessoId;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectProcess;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProcessId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 
 @Component
 public class ProcessoMapper {
 
-    public Processo toEntity(ProcessoApiResponse apiResponse, Coordenador coordenador) {
+    public ProjectProcess toEntity(ProcessoApiResponse apiResponse, Coordinator coordenador) {
         if (apiResponse == null) {
             return null;
         }
 
-        ProcessoId processoId = new ProcessoId(
+        ProcessId processoId = new ProcessId(
                 apiResponse.getRadical(),
                 apiResponse.getNumProtocolo(),
                 apiResponse.getAno(),
                 apiResponse.getDv());
 
-        Processo processo = new Processo();
+        ProjectProcess processo = new ProjectProcess();
         processo.setId(processoId);
-        processo.setIdProcesso(apiResponse.getIdProcesso());
+        processo.setExternalProcessId(apiResponse.getIdProcesso());
 
-        processo.setCoordenador(coordenador);
+        processo.setCoordinator(coordenador);
 
         return processo;
     }
 
-    public Processo toEntity(ProcessoRequest processoRequest, Coordenador coordenador) {
+    public ProjectProcess toEntity(ProcessoRequest processoRequest, Coordinator coordenador) {
 
-        ProcessoId processoId = new ProcessoId(
+        ProcessId processoId = new ProcessId(
                 processoRequest.getRadical(),
                 processoRequest.getNumProtocolo(),
                 processoRequest.getAno(),
                 processoRequest.getDv());
 
-        Processo processo = new Processo();
+        ProjectProcess processo = new ProjectProcess();
         processo.setId(processoId);
-        processo.setIdProcesso(processoRequest.getIdProcesso());
-        processo.setDataInicio(processoRequest.getDataInicio());
-        processo.setFinanciador(processoRequest.getFinanciador());
-        processo.setNome(processoRequest.getNome());
-        processo.setObservacao(processoRequest.getObservacao());
-        processo.setValor(processoRequest.getValor());
-        processo.setProjetoId(new ProjetoId(processoRequest.getNumeroSipac(), processoRequest.getAnoSipac()));
-        processo.setCoordenador(coordenador);
+        processo.setExternalProcessId(processoRequest.getIdProcesso());
+        processo.setStartDate(processoRequest.getDataInicio());
+        processo.setFunder(processoRequest.getFinanciador());
+        processo.setName(processoRequest.getNome());
+        processo.setObservation(processoRequest.getObservacao());
+        processo.setAmount(processoRequest.getValor());
+        processo.setProjectId(new ProjectId(processoRequest.getNumeroSipac(), processoRequest.getAnoSipac()));
+        processo.setCoordinator(coordenador);
 
         return processo;
     }
 
-    public ProcessoResponse toResponse(Processo processo) {
+    public ProcessoResponse toResponse(ProjectProcess processo) {
         if (processo == null) {
             return null;
         }
 
         ProcessoResponse response = new ProcessoResponse();
-        ProcessoId id = processo.getId();
+        ProcessId id = processo.getId();
 
         response.setRadical(id.getRadical());
-        response.setNumProtocolo(id.getNumProtocolo());
-        response.setAno(id.getAno());
+        response.setNumProtocolo(id.getProtocolNumber());
+        response.setAno(id.getYear());
         response.setDv(id.getDv());
 
-        response.setNome(processo.getNome());
-        response.setDataInicio(processo.getDataInicio());
-        response.setObservacao(processo.getObservacao());
-        response.setIdProcesso(processo.getIdProcesso());
-        response.setValor(processo.getValor());
-        response.setFinanciador(processo.getFinanciador());
-        if (processo.getProjetoId() != null) {
-            response.setAnoSipac(processo.getProjetoId().getAnoSipac());
-            response.setNumeroSipac(processo.getProjetoId().getNumeroSipac());
+        response.setNome(processo.getName());
+        response.setDataInicio(processo.getStartDate());
+        response.setObservacao(processo.getObservation());
+        response.setIdProcesso(processo.getExternalProcessId());
+        if (processo.getAmount() != null)
+            response.setValor(processo.getAmount());
+        else
+            response.setValor(0);
+        response.setFinanciador(processo.getFunder());
+        if (processo.getProjectId() != null) {
+            response.setAnoSipac(processo.getProjectId().getSipacYear());
+            response.setNumeroSipac(processo.getProjectId().getSipacNumber());
         }
-        response.setCoordenador(processo.getCoordenador());
+        response.setCoordenador(processo.getCoordinator());
 
-        response.setMovimentacoes(processo.getMovimentacoes());
+        response.setMovimentacoes(processo.getMovements());
 
         return response;
     }

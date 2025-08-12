@@ -13,7 +13,7 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ParceiroRepository;
 
 import jakarta.transaction.Transactional;
@@ -40,7 +40,7 @@ public class ParceiroService {
             }
 
             if (parceiro.getProjetos() != null) {
-                List<ProjetoId> projetoIds = parceiro.getProjetos().stream()
+                List<ProjectId> projetoIds = parceiro.getProjetos().stream()
                         .map(projetoParceiro -> projetoParceiro.getProjeto().getId())
                         .collect(Collectors.toList());
 

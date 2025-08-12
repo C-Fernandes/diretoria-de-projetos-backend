@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,10 +24,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Projeto {
     @EmbeddedId
-    private ProjetoId id;
+    private ProjectId id;
 
     @Column(unique = true)
-    private long idProjeto;
+    private Long idProjeto = null;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descricao;
@@ -41,7 +41,7 @@ public class Projeto {
     private Date dataInicio;
     @ManyToOne
     @JoinColumn(name = "coordenador_matricula", nullable = false)
-    private Coordenador coordenador;
+    private Coordinator coordenador;
     @JsonManagedReference
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjetoHasParceiro> parceiros = new ArrayList<>();
@@ -58,10 +58,10 @@ public class Projeto {
     private String categoria;
 
     public Projeto() {
-        this.id = new ProjetoId();
+        this.id = new ProjectId();
     }
 
     public Projeto(long numeroSipac, long anoSipac) {
-        this.id = new ProjetoId(numeroSipac, anoSipac);
+        this.id = new ProjectId(numeroSipac, anoSipac);
     }
 }

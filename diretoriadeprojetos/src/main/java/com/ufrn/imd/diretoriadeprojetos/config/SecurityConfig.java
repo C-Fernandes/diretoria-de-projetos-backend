@@ -60,9 +60,9 @@ public class SecurityConfig {
                 configuration.setAllowedOrigins(List.of("http://localhost:5173"));
                 // Métodos HTTP permitidos
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-                // Cabeçalhos permitidos
+
                 configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-                // Permite o envio de credenciais
+
                 configuration.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

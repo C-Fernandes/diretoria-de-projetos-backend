@@ -13,38 +13,38 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
-import com.ufrn.imd.diretoriadeprojetos.services.CoordenadorService;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
+import com.ufrn.imd.diretoriadeprojetos.services.CoordinatorService;
 
 @RestController
 @RequestMapping("/coordenadores")
-public class CoordenadorController {
+public class CoordinatorController {
 
     @Autowired
-    private CoordenadorService coordenadorService;
+    private CoordinatorService coordenadorService;
 
     @PostMapping
-    public ResponseEntity<Coordenador> criar(@RequestBody Coordenador coordenador) {
-        Coordenador salvo = coordenadorService.save(coordenador);
+    public ResponseEntity<Coordinator> criar(@RequestBody Coordinator coordenador) {
+        Coordinator salvo = coordenadorService.save(coordenador);
         return ResponseEntity.ok(salvo);
     }
 
     @GetMapping
-    public ResponseEntity<List<Coordenador>> listarTodos() {
-        List<Coordenador> coordenadores = coordenadorService.findAll();
+    public ResponseEntity<List<Coordinator>> listarTodos() {
+        List<Coordinator> coordenadores = coordenadorService.findAll();
         return ResponseEntity.ok(coordenadores);
     }
 
     @GetMapping("/{siape}")
-    public ResponseEntity<Coordenador> buscarPorSiape(@PathVariable Long siape) {
+    public ResponseEntity<Coordinator> buscarPorSiape(@PathVariable Long siape) {
         return coordenadorService.buscarPorSiape(siape)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{siape}")
-    public ResponseEntity<Coordenador> atualizar(@PathVariable Long siape, @RequestBody Coordenador coordenador) {
-        Coordenador atualizado = coordenadorService.update(siape, coordenador);
+    public ResponseEntity<Coordinator> atualizar(@PathVariable Long siape, @RequestBody Coordinator coordenador) {
+        Coordinator atualizado = coordenadorService.update(siape, coordenador);
         return ResponseEntity.ok(atualizado);
     }
 

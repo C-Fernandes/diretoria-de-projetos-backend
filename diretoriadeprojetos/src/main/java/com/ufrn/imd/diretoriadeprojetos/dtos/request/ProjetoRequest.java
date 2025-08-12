@@ -18,7 +18,7 @@ public class ProjetoRequest {
     private long numeroSipac;
     private long anoSipac;
     private String titulo;
-    private long idProjeto;
+    private Long idProjeto;
     private double valor;
     private String contaContrato;
     private Date dataInicio;

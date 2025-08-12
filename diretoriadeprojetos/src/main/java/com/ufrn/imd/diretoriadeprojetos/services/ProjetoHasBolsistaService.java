@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
 
 @Service
@@ -17,7 +17,7 @@ public class ProjetoHasBolsistaService {
     @Autowired
     private ProjetoHasBolsistaRepository projetoHasBolsistaRepository;
 
-    public List<ProjetoHasBolsista> findByIdProjetoId(ProjetoId projetoId) {
+    public List<ProjetoHasBolsista> findByIdProjetoId(ProjectId projetoId) {
         // return projetoHasBolsistaRepository.findByIdProjetoId(projetoId);
 
         return null;

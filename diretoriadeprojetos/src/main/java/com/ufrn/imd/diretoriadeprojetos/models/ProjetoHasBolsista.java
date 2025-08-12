@@ -30,8 +30,8 @@ public class ProjetoHasBolsista {
     @MapsId("projetoParceiroId")
     @JsonBackReference("projeto-bolsistas")
     @JoinColumns({
-            @JoinColumn(name = "numero_sipac", referencedColumnName = "numero_sipac"),
-            @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac"),
+            @JoinColumn(name = "sipac_number", referencedColumnName = "sipac_number"),
+            @JoinColumn(name = "sipac_year", referencedColumnName = "sipac_year"),
             @JoinColumn(name = "parceiro_id", referencedColumnName = "parceiro_id")
     })
     private ProjetoHasParceiro projetoParceiro;

@@ -7,11 +7,11 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
-import com.ufrn.imd.diretoriadeprojetos.models.Coordenador;
+import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
 import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +30,8 @@ public class ProjetoMapper {
         }
 
         ProjetoResponse response = new ProjetoResponse();
-        response.setNumeroSipac(projeto.getId().getNumeroSipac());
-        response.setAnoSipac(projeto.getId().getAnoSipac());
+        response.setNumeroSipac(projeto.getId().getSipacNumber());
+        response.setAnoSipac(projeto.getId().getSipacYear());
         response.setTitulo(projeto.getTitulo());
         response.setLeiDeInformatica(projeto.getLeiDeInformatica());
         response.setEmbrapii(projeto.getEmbrapii());
@@ -58,13 +58,13 @@ public class ProjetoMapper {
         return response;
     }
 
-    public Projeto toEntity(ProjetoRequest projetoDto, Coordenador coordenador) {
+    public Projeto toEntity(ProjetoRequest projetoDto, Coordinator coordenador) {
         if (projetoDto == null) {
             return null;
         }
 
         Projeto projeto = new Projeto();
-        ProjetoId projetoId = new ProjetoId(projetoDto.getNumeroSipac(), projetoDto.getAnoSipac());
+        ProjectId projetoId = new ProjectId(projetoDto.getNumeroSipac(), projetoDto.getAnoSipac());
 
         projeto.setId(projetoId);
         projeto.setTitulo(projetoDto.getTitulo());
@@ -85,7 +85,7 @@ public class ProjetoMapper {
         return projeto;
     }
 
-    public ProjetoResponse toResponse(ProjetoApiResponse projetoApi, Coordenador coordenador,
+    public ProjetoResponse toResponse(ProjetoApiResponse projetoApi, Coordinator coordenador,
             List<Parceiro> parceiros) {
         if (projetoApi == null) {
             return null;

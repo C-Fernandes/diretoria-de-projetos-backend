@@ -26,8 +26,8 @@ public class Aditivo {
     private String objetoTermo;
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "numero_sipac", referencedColumnName = "numero_sipac"),
-            @JoinColumn(name = "ano_sipac", referencedColumnName = "ano_sipac")
+            @JoinColumn(name = "sipac_number", referencedColumnName = "sipac_number"),
+            @JoinColumn(name = "sipac_year", referencedColumnName = "sipac_year")
     })
     private Projeto projeto;
 }

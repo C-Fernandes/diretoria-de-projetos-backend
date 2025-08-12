@@ -46,10 +46,10 @@ public class UserService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("noreply@diretoriodeprojetos.com");
             message.setTo(user.getEmail());
-            message.setSubject("✅ Sua conta no Diretório de Projetos foi Aprovada");
+            message.setSubject("Sua conta no GUP foi Aprovada");
 
             String text = String.format(
-                    "Olá, %s!\n\nBoas notícias! Sua conta no Diretório de Projetos da UFRN foi revisada e aprovada por um administrador.\n\n"
+                    "Olá, %s!\n\nBoas notícias! Sua conta no GUP da UFRN foi revisada e aprovada por um administrador.\n\n"
                             +
                             "Você já pode fazer login para acessar a plataforma.\n\n" +
                             "Atenciosamente,\nEquipe do Diretório de Projetos - IMD/UFRN",
@@ -83,15 +83,14 @@ public class UserService {
             message.setSubject("⚠️ Alteração de Permissão da sua Conta");
 
             String text = String.format(
-                    "Olá, %s!\n\nInformamos que a sua permissão de acesso no Diretório de Projetos foi alterada por um administrador.\n\n"
+                    "Olá, %s!\n\nInformamos que a sua permissão de acesso no GUP foi alterada por um administrador.\n\n"
                             +
                             "Sua nova permissão é: %s.\n\n" +
                             "Se você não reconhece essa alteração ou acredita que foi um engano, por favor, entre em contato com o suporte.\n\n"
                             +
                             "Atenciosamente,\nEquipe do Diretório de Projetos - IMD/UFRN",
                     user.getName(),
-                    newRole.toString() // Converte o Enum para String (ex: "ADMIN")
-            );
+                    newRole.toString());
 
             message.setText(text);
             emailSender.send(message);

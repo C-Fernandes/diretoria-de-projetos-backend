@@ -48,9 +48,8 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USER; // Assumindo que o Enum Role também será traduzido
+    private Role role = Role.GUEST;
 
-    // Construtor para criar novos usuários de forma controlada
     public User(String name, String email, String hashedPassword) {
         this.name = name;
         this.email = email;
