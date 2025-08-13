@@ -15,6 +15,8 @@ import com.ufrn.imd.diretoriadeprojetos.models.Partner;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.repository.PartnerRepository;
 
+import br.com.caelum.stella.validation.CNPJValidator;
+import br.com.caelum.stella.validation.InvalidStateException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -32,10 +34,10 @@ public class PartnerService {
 
             response.setId(parceiro.getId());
             response.setCnpj(parceiro.getCnpj());
-            response.setNome(parceiro.getName());
+            response.setName(parceiro.getName());
 
             if (parceiro.getFundingType() != null) {
-                response.setTipoFinanciamento(parceiro.getFundingType().name());
+                response.setFundingType(parceiro.getFundingType());
             }
 
             if (parceiro.getProjects() != null) {
@@ -43,9 +45,9 @@ public class PartnerService {
                         .map(projetoParceiro -> projetoParceiro.getProject().getId())
                         .collect(Collectors.toList());
 
-                response.setProjetos(projetoIds);
+                response.setProjects(projetoIds);
             } else {
-                response.setProjetos(new ArrayList<>());
+                response.setProjects(new ArrayList<>());
             }
             return response;
 
@@ -61,9 +63,11 @@ public class PartnerService {
     }
 
     public Partner update(UUID id, Partner parceiroAtualizado) {
+        validateCnpj(parceiroAtualizado.getCnpj());
         return partnerRepository.findById(id).map(parceiro -> {
             parceiro.setName(parceiroAtualizado.getName());
             parceiro.setFundingType(parceiroAtualizado.getFundingType());
+            parceiro.setCnpj(parceiroAtualizado.getCnpj());
             parceiro.setProjects(parceiroAtualizado.getProjects());
             return partnerRepository.save(parceiro);
         }).orElseThrow(() -> new RuntimeException("Parceiro não encontrado"));
@@ -110,6 +114,18 @@ public class PartnerService {
         }
         Partner novoParceiro = new Partner(parceiroApi.getIdParticipe(), parceiroApi.getNomeParticipe());
         return partnerRepository.save(novoParceiro);
+    }
+
+    private void validateCnpj(String cnpj) {
+        // A validação só ocorre se o CNPJ não for nulo ou vazio
+        if (cnpj != null && !cnpj.trim().isEmpty()) {
+            try {
+                CNPJValidator validator = new CNPJValidator();
+                validator.assertValid(cnpj);
+            } catch (InvalidStateException e) {
+                throw new IllegalArgumentException("O CNPJ fornecido é inválido");
+            }
+        }
     }
 
 }

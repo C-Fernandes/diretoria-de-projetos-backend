@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
+import com.ufrn.imd.diretoriadeprojetos.annotations.IsUser;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
@@ -33,6 +34,7 @@ public class ProjetoController {
         return projetoService.findAll();
     }
 
+    @IsUser
     @GetMapping(params = "externo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjetoResponse> buscarNaApi(
             @RequestParam long numeroSipac,
@@ -44,6 +46,7 @@ public class ProjetoController {
         return ResponseEntity.ok(fluxo);
     }
 
+    @IsUser
     @DeleteMapping("/{numeroSipac}/{anoSipac}")
     public ResponseEntity<List<ProjetoResponse>> delete(
             @PathVariable long numeroSipac,
@@ -54,7 +57,7 @@ public class ProjetoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USUARIO')")
+    @IsUser
     public ResponseEntity<Projeto> criar(@RequestBody ProjetoRequest projeto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projeto));
     }

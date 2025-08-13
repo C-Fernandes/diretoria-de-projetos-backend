@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ufrn.imd.diretoriadeprojetos.enums.FundingType;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 
 import jakarta.persistence.CascadeType;
@@ -28,8 +29,8 @@ public class ParceiroResponse {
 
     private UUID id;
     private String cnpj;
-    private String nome;
-    private String tipoFinanciamento;
-    private List<ProjectId> projetos;
+    private String name;
+    private FundingType fundingType;
+    private List<ProjectId> projects;
 
 }

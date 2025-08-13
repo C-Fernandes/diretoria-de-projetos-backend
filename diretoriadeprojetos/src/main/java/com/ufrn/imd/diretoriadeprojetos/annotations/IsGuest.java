@@ -8,6 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('VISITANTE')")
-public @interface IsVisitante {
+@PreAuthorize("hasRole('GUEST')")
+public @interface IsGuest {
 }

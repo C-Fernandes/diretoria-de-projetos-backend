@@ -49,10 +49,6 @@ public class SecurityConfig {
                                 .build();
         }
 
-        /**
-         * ✅ 2. ESTE BEAN DEFINE AS REGRAS DE CORS.
-         * Ele permite que seu front-end (ex: http://localhost:5173) acesse a API.
-         */
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
@@ -77,7 +73,7 @@ public class SecurityConfig {
 
         @Bean
         public RoleHierarchy roleHierarchy() {
-                String hierarchy = "ROLE_ADMIN > ROLE_USUARIO > ROLE_VISITANTE";
+                String hierarchy = "ROLE_ADMIN > ROLE_USER > ROLE_GUEST";
                 return RoleHierarchyImpl.fromHierarchy(hierarchy);
         }
 

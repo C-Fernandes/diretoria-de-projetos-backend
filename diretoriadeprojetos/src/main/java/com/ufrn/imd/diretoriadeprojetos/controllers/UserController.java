@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imd.diretoriadeprojetos.annotations.IsAdmin;
 import com.ufrn.imd.diretoriadeprojetos.annotations.IsSelfOrAdmin;
-import com.ufrn.imd.diretoriadeprojetos.annotations.IsVisitante;
+import com.ufrn.imd.diretoriadeprojetos.annotations.IsGuest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.LoginRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.RegisterRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.LoginResponse;
@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @IsVisitante
+    @IsGuest
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(
             @AuthenticationPrincipal User user) {

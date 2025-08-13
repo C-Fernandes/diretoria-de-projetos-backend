@@ -2,6 +2,7 @@ package com.ufrn.imd.diretoriadeprojetos.models;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,12 +64,14 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        // Usando o email como username para o Spring Security
         return this.email;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (!isAdminApproved) {
+            return Collections.emptyList();
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
