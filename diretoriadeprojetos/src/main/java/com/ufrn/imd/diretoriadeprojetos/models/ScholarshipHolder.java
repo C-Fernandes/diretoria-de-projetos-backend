@@ -23,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Bolsista {
+public class ScholarshipHolder { // "Bolsista" -> "ScholarshipHolder"
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,24 +32,21 @@ public class Bolsista {
   @Column(nullable = true, unique = true)
   private String cpf;
 
-  private String nome;
+  private String name;
   private String email;
 
-  // Campos de estudante
-  private String tipoSuperior;
-  private String curso;
+  private String educationLevel; // "tipoSuperior" -> "educationLevel" (e.g., Undergraduate, PhD)
+  private String course; // "curso" -> "course"
 
-  // Campos de pesquisador
-  private Boolean docente;
-  private String formacao;
+  // Researcher fields
+  private Boolean isTeacher; // "docente" -> "isFaculty"
+  private String degree; // "formacao" -> "degree" or "fieldOfStudy"
 
-  @JsonManagedReference("bolsista-projetos") // Adicione um nome para a referência
-  @OneToMany(mappedBy = "bolsista", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<ProjetoHasBolsista> projetos = new ArrayList<>();
+  @JsonManagedReference("scholarship-holder-projects") // "bolsista-projetos" -> "scholarship-holder-projects"
+  @OneToMany(mappedBy = "scholarshipHolder", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ProjectScholarshipHolder> projects = new ArrayList<>(); // "projetos" -> "projects"
 
-  public Bolsista(String nomeMembro) {
-
-    this.nome = nomeMembro;
+  public ScholarshipHolder(String memberName) { // "nomeMembro" -> "memberName"
+    this.name = memberName;
   }
-
 }

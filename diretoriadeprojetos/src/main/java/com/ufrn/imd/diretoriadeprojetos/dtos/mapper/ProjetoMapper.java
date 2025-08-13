@@ -6,11 +6,11 @@ import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
-import com.ufrn.imd.diretoriadeprojetos.enums.TipoFinanciamento;
+import com.ufrn.imd.diretoriadeprojetos.enums.FundingType;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
-import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.Partner;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectPartner;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class ProjetoMapper {
 
         if (projeto.getParceiros() != null) {
             List<UUID> parceirosIds = projeto.getParceiros().stream()
-                    .map(projetoParceiro -> projetoParceiro.getParceiro().getId())
+                    .map(projetoParceiro -> projetoParceiro.getPartner().getId())
                     .collect(Collectors.toList());
             response.setParceirosId(parceirosIds);
         }
@@ -86,7 +86,7 @@ public class ProjetoMapper {
     }
 
     public ProjetoResponse toResponse(ProjetoApiResponse projetoApi, Coordinator coordenador,
-            List<Parceiro> parceiros) {
+            List<Partner> parceiros) {
         if (projetoApi == null) {
             return null;
         }
@@ -122,10 +122,10 @@ public class ProjetoMapper {
 
         respostaProjeto.setCategoria(novaCategoria);
         if (parceiros != null) {
-            List<UUID> listaParceirosIds = parceiros.stream()
-                    .map(Parceiro::getId)
+            List<UUID> listaPartnersIds = parceiros.stream()
+                    .map(Partner::getId)
                     .collect(Collectors.toList());
-            respostaProjeto.setParceirosId(listaParceirosIds);
+            respostaProjeto.setParceirosId(listaPartnersIds);
         }
 
         return respostaProjeto;
@@ -170,13 +170,13 @@ public class ProjetoMapper {
         return request;
     }
 
-    public TipoFinanciamento encontrarTipoFinanciamento(Projeto projeto) {
+    public FundingType encontrarTipoFinanciamento(Projeto projeto) {
         List<String> ordemPrioridade = Arrays.asList("EMPRESA", "SEBRAE", "UFRN", "EMBRAPII", "FUNPEC");
-        Map<String, Parceiro> parceirosPorTipo = new HashMap<>();
+        Map<String, Partner> parceirosPorTipo = new HashMap<>();
 
-        for (ProjetoHasParceiro projetoParceiro : projeto.getParceiros()) {
-            Parceiro parceiro = projetoParceiro.getParceiro();
-            String nomeParceiro = parceiro.getNome().toUpperCase();
+        for (ProjectPartner projetoParceiro : projeto.getParceiros()) {
+            Partner parceiro = projetoParceiro.getPartner();
+            String nomeParceiro = parceiro.getName().toUpperCase();
 
             if (nomeParceiro.contains("FUNPEC")) {
                 parceirosPorTipo.put("FUNPEC", parceiro);
@@ -191,10 +191,10 @@ public class ProjetoMapper {
             }
         }
 
-        TipoFinanciamento tipoFinanciamento = null;
+        FundingType tipoFinanciamento = null;
         for (String tipo : ordemPrioridade) {
             if (parceirosPorTipo.containsKey(tipo)) {
-                tipoFinanciamento = parceirosPorTipo.get(tipo).getTipoFinanciamento();
+                tipoFinanciamento = parceirosPorTipo.get(tipo).getFundingType();
                 break;
             }
         }

@@ -31,68 +31,66 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.DadosPagamento;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ScholarshipHolderResponse;
+import com.ufrn.imd.diretoriadeprojetos.models.ScholarshipHolder;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasBolsista;
-import com.ufrn.imd.diretoriadeprojetos.models.ProjetoHasParceiro;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectPartner;
+import com.ufrn.imd.diretoriadeprojetos.models.ProjectScholarshipHolder;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoHasBolsistaId;
+import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectScholarshipHolderId;
 
-import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjetoParceiroId;
-import com.ufrn.imd.diretoriadeprojetos.repository.BolsistaRepository;
-import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoHasBolsistaRepository;
+import com.ufrn.imd.diretoriadeprojetos.repository.ScholarshipHolderRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class BolsistaService {
+public class ScholarshipHolderService {
 
     @Autowired
-    private BolsistaRepository bolsistaRepository;
+    private ScholarshipHolderRepository scholarshipHolderRepository;
 
     @Autowired
-    private ProjetoHasBolsistaService projetoHasBolsistaService;
+    private ProjectScholarshipHolderService projetoHasBolsistaService;
 
     @Autowired
-    private ProjetoParceiroService projetoParceiroService;
+    private ProjectPartnerService projetoParceiroService;
     private static final DateTimeFormatter FORMATADOR_COMPETENCIA_FLEXIVEL = new DateTimeFormatterBuilder()
             .appendPattern("[MMM/yyyy][M/yyyy][MM/yyyy]") // Tenta "abr/2025", "4/2025" e "04/2025"
             .toFormatter(new Locale("pt", "BR"));
 
-    public List<BolsistaResponse> listarTodos() {
-        List<Bolsista> bolsistas = bolsistaRepository.findAll();
+    public List<ScholarshipHolderResponse> findAll() {
+        List<ScholarshipHolder> scholarshipHolders = scholarshipHolderRepository.findAll();
 
-        return bolsistas.stream() // Inicia um fluxo de objetos Bolsista
-                .flatMap(bolsista -> bolsista.getProjetos().stream())
-                .map(vinculo -> {
-                    BolsistaResponse dto = new BolsistaResponse();
-                    Bolsista bolsista = vinculo.getBolsista();
-                    ProjetoHasParceiro projetoParceiro = vinculo.getProjetoParceiro();
+        return scholarshipHolders.stream() // Starts a stream of ScholarshipHolder objects
+                .flatMap(scholarshipHolder -> scholarshipHolder.getProjects().stream())
+                .map(link -> {
+                    ScholarshipHolderResponse dto = new ScholarshipHolderResponse();
+                    ScholarshipHolder holder = link.getScholarshipHolder();
+                    ProjectPartner projectPartner = link.getProjectPartner();
 
-                    // Mapeia os dados do Bolsista
-                    if (bolsista != null) {
-                        dto.setId(bolsista.getId());
-                        dto.setCpf(bolsista.getCpf());
-                        dto.setNome(bolsista.getNome());
-                        dto.setEmail(bolsista.getEmail());
-                        dto.setTipoSuperior(bolsista.getTipoSuperior());
-                        dto.setCurso(bolsista.getCurso());
-                        dto.setDocente(bolsista.getDocente());
-                        dto.setFormacao(bolsista.getFormacao());
+                    // Maps the ScholarshipHolder data
+                    if (holder != null) {
+                        dto.setId(holder.getId());
+                        dto.setCpf(holder.getCpf());
+                        dto.setName(holder.getName());
+                        dto.setEmail(holder.getEmail());
+                        dto.setEducationLevel(holder.getEducationLevel());
+                        dto.setCourse(holder.getCourse());
+                        dto.setIsTeacher(holder.getIsTeacher());
+                        dto.setDegree(holder.getDegree());
                     }
 
-                    dto.setDataInicio(vinculo.getDataInicio());
-                    dto.setDataFim(vinculo.getDataFim());
-                    dto.setRubrica(vinculo.getRubrica());
-                    dto.setValor(vinculo.getValor());
-                    dto.setCHSemanal(vinculo.getCHSemanal());
+                    dto.setStartDate(link.getStartDate());
+                    dto.setEndDate(link.getEndDate());
+                    dto.setRubrica(link.getRubrica());
+                    dto.setValue(link.getValue());
+                    dto.setCH(link.getCh());
 
-                    if (projetoParceiro != null && projetoParceiro.getProjeto() != null) {
-                        dto.setNumeroFunpec(projetoParceiro.getNumeroFunpec());
-                        if (projetoParceiro.getProjeto().getId() != null) {
-                            dto.setNumeroSipac(projetoParceiro.getProjeto().getId().getSipacNumber());
-                            dto.setAnoSipac(projetoParceiro.getProjeto().getId().getSipacYear());
+                    if (projectPartner != null && projectPartner.getProject() != null) {
+                        dto.setFunpecNumber(projectPartner.getFunpecNumber());
+                        if (projectPartner.getProject().getId() != null) {
+                            dto.setSipacNumber(projectPartner.getProject().getId().getSipacNumber());
+                            dto.setSipacYear(projectPartner.getProject().getId().getSipacYear());
                         }
                     }
 
@@ -101,44 +99,44 @@ public class BolsistaService {
                 }).collect(Collectors.toList());
     }
 
-    public Optional<Bolsista> buscarPorId(UUID id) {
-        return bolsistaRepository.findById(id);
+    public Optional<ScholarshipHolder> buscarPorId(UUID id) {
+        return scholarshipHolderRepository.findById(id);
     }
 
-    public Bolsista salvar(Bolsista bolsista) {
-        return bolsistaRepository.save(bolsista);
+    public ScholarshipHolder salvar(ScholarshipHolder bolsista) {
+        return scholarshipHolderRepository.save(bolsista);
     }
 
-    public Optional<Bolsista> findByNome(String nome) {
-        return bolsistaRepository.findByNome(nome);
+    public Optional<ScholarshipHolder> findByNome(String nome) {
+        return scholarshipHolderRepository.findByName(nome);
     }
 
-    public Bolsista atualizar(UUID id, Bolsista novoBolsista) {
-        return bolsistaRepository.findById(id).map(b -> {
+    public ScholarshipHolder atualizar(UUID id, ScholarshipHolder novoBolsista) {
+        return scholarshipHolderRepository.findById(id).map(b -> {
             b.setCpf(novoBolsista.getCpf());
-            b.setNome(novoBolsista.getNome());
+            b.setName(novoBolsista.getName());
             b.setEmail(novoBolsista.getEmail());
-            b.setTipoSuperior(novoBolsista.getTipoSuperior());
-            b.setCurso(novoBolsista.getCurso());
-            b.setDocente(novoBolsista.getDocente());
-            b.setFormacao(novoBolsista.getFormacao());
-            return bolsistaRepository.save(b);
-        }).orElseThrow(() -> new RuntimeException("Bolsista não encontrado"));
+            b.setEducationLevel(novoBolsista.getEducationLevel());
+            b.setCourse(novoBolsista.getCourse());
+            b.setIsTeacher(novoBolsista.getIsTeacher());
+            b.setDegree(novoBolsista.getDegree());
+            return scholarshipHolderRepository.save(b);
+        }).orElseThrow(() -> new RuntimeException("ScholarshipHolder não encontrado"));
     }
 
     public void deletar(UUID id) {
-        bolsistaRepository.deleteById(id);
+        scholarshipHolderRepository.deleteById(id);
     }
 
-    public List<Bolsista> findByProjeto(ProjectId projetoId) {
-        List<ProjetoHasBolsista> associacoes = projetoHasBolsistaService.findByIdProjetoId(projetoId);
+    public List<ScholarshipHolder> findByProjeto(ProjectId projetoId) {
+        List<ProjectScholarshipHolder> associacoes = projetoHasBolsistaService.findByIdProjetoId(projetoId);
 
         if (associacoes == null || associacoes.isEmpty()) {
             return Collections.emptyList(); // Ou new ArrayList<>();
         }
 
         return associacoes.stream()
-                .map(ProjetoHasBolsista::getBolsista)
+                .map(ProjectScholarshipHolder::getScholarshipHolder)
                 .collect(Collectors.toList());
     }
 
@@ -214,8 +212,8 @@ public class BolsistaService {
 
                 // 1. Valida e busca o projeto.
                 System.out.println("[DEBUG] Buscando projeto com número FUNPEC: " + dados.getNumeroProjeto());
-                Optional<ProjetoHasParceiro> projetoOpt = projetoParceiroService
-                        .findByNumeroFunpec(Long.parseLong(dados.getNumeroProjeto()));
+                Optional<ProjectPartner> projetoOpt = projetoParceiroService
+                        .findByFunpecNumber(Long.parseLong(dados.getNumeroProjeto()));
 
                 if (!projetoOpt.isPresent()) {
                     System.err.println("Projeto " + dados.getNumeroProjeto() + " não encontrado");
@@ -224,19 +222,19 @@ public class BolsistaService {
                     System.err.println("Projeto " + dados.getNumeroProjeto() + " encontrado");
 
                 }
-                ProjetoHasParceiro projeto = projetoOpt.get();
+                ProjectPartner projeto = projetoOpt.get();
 
-                System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProjeto().getTitulo());
+                System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProject().getTitulo());
                 System.out.println("[DEBUG] Buscando bolsista com nome: '" + dados.getNomeMembro() + "'");
-                Optional<Bolsista> bolsistaOpt = findByNome(dados.getNomeMembro());
+                Optional<ScholarshipHolder> bolsistaOpt = findByNome(dados.getNomeMembro());
                 if (dados.getNumeroRubrica() == 18 || dados.getNumeroRubrica() == 20) {
                     if (bolsistaOpt.isPresent()) {
                         System.out.println(
-                                "[FLUXO] Bolsista JÁ EXISTE. Entrando no fluxo de gerenciamento de vínculo...");
+                                "[FLUXO] ScholarshipHolder JÁ EXISTE. Entrando no fluxo de gerenciamento de vínculo...");
                         gerenciarVinculoExistente(bolsistaOpt.get(), projeto, dados);
                     } else {
                         System.out.println(
-                                "[FLUXO] Bolsista NÃO EXISTE. Entrando no fluxo de criação de novo bolsista...");
+                                "[FLUXO] ScholarshipHolder NÃO EXISTE. Entrando no fluxo de criação de novo bolsista...");
                         criarNovoBolsistaComVinculo(projeto, dados);
                     }
                     pagamentosProcessados.add(dados);
@@ -259,8 +257,9 @@ public class BolsistaService {
         return pagamentosProcessados;
     }
 
-    private void gerenciarVinculoExistente(Bolsista bolsista, ProjetoHasParceiro projeto, DadosPagamento dados) {
-        System.out.println("  [FLUXO] -> Entrou em gerenciarVinculoExistente para: " + bolsista.getNome());
+    private void gerenciarVinculoExistente(ScholarshipHolder bolsista, ProjectPartner projeto,
+            DadosPagamento dados) {
+        System.out.println("  [FLUXO] -> Entrou em gerenciarVinculoExistente para: " + bolsista.getName());
 
         // Converte a competência do CSV para o formato YearMonth
         YearMonth competenciaAtual = YearMonth.parse(dados.getCompetencia().toLowerCase(),
@@ -269,8 +268,8 @@ public class BolsistaService {
         System.out.println("    [DEBUG] Buscando TODOS os vínculos do bolsista com o projeto...");
 
         // Pega TODOS os vínculos, não apenas o mais recente
-        List<ProjetoHasBolsista> vinculosExistentes = projetoHasBolsistaService
-                .findBolsistaInProjeto(bolsista, projeto.getNumeroFunpec())
+        List<ProjectScholarshipHolder> vinculosExistentes = projetoHasBolsistaService
+                .findBolsistaInProjeto(bolsista, projeto.getFunpecNumber())
                 .orElse(new ArrayList<>()); // Garante uma lista vazia se não houver nada
 
         if (vinculosExistentes.isEmpty()) {
@@ -281,15 +280,15 @@ public class BolsistaService {
         }
 
         // Procura por um vínculo que pode ser estendido PARA FRENTE
-        Optional<ProjetoHasBolsista> vinculoParaEstenderFim = vinculosExistentes.stream().filter(v -> {
-            YearMonth dataFim = YearMonth.from(v.getDataFim().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        Optional<ProjectScholarshipHolder> vinculoParaEstenderFim = vinculosExistentes.stream().filter(v -> {
+            YearMonth dataFim = YearMonth.from(v.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             return competenciaAtual.equals(dataFim.plusMonths(1));
         }).findFirst();
 
         // Procura por um vínculo que pode ser estendido PARA TRÁS
-        Optional<ProjetoHasBolsista> vinculoParaEstenderInicio = vinculosExistentes.stream().filter(v -> {
+        Optional<ProjectScholarshipHolder> vinculoParaEstenderInicio = vinculosExistentes.stream().filter(v -> {
             YearMonth dataInicio = YearMonth
-                    .from(v.getDataInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    .from(v.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             return competenciaAtual.equals(dataInicio.minusMonths(1));
         }).findFirst();
 
@@ -297,17 +296,17 @@ public class BolsistaService {
 
         if (vinculoParaEstenderFim.isPresent() && vinculoParaEstenderInicio.isPresent()) {
             // CENÁRIO 1: A competência serve como PONTE entre dois vínculos. Vamos uni-los.
-            ProjetoHasBolsista vinculoAnterior = vinculoParaEstenderFim.get();
-            ProjetoHasBolsista vinculoPosterior = vinculoParaEstenderInicio.get();
+            ProjectScholarshipHolder vinculoAnterior = vinculoParaEstenderFim.get();
+            ProjectScholarshipHolder vinculoPosterior = vinculoParaEstenderInicio.get();
 
             System.out.println("      [AÇÃO] -> PONTE DETECTADA: Unindo dois vínculos separados.");
-            System.out.println("        - Vínculo 1: de " + vinculoAnterior.getDataInicio() + " a "
-                    + vinculoAnterior.getDataFim());
-            System.out.println("        - Vínculo 2: de " + vinculoPosterior.getDataInicio() + " a "
-                    + vinculoPosterior.getDataFim());
+            System.out.println("        - Vínculo 1: de " + vinculoAnterior.getStartDate() + " a "
+                    + vinculoAnterior.getStartDate());
+            System.out.println("        - Vínculo 2: de " + vinculoPosterior.getStartDate() + " a "
+                    + vinculoPosterior.getEndDate());
 
             // Atualiza a data final do primeiro vínculo para a data final do segundo
-            vinculoAnterior.setDataFim(vinculoPosterior.getDataFim());
+            vinculoAnterior.setEndDate(vinculoPosterior.getEndDate());
             projetoHasBolsistaService.salvar(vinculoAnterior);
 
             projetoHasBolsistaService.deletar(vinculoPosterior);
@@ -315,18 +314,18 @@ public class BolsistaService {
 
         } else if (vinculoParaEstenderFim.isPresent()) {
             // CENÁRIO 2: Apenas estende um vínculo para FRENTE.
-            ProjetoHasBolsista vinculo = vinculoParaEstenderFim.get();
+            ProjectScholarshipHolder vinculo = vinculoParaEstenderFim.get();
             System.out.println(
                     "      [AÇÃO] -> CONDIÇÃO VERDADEIRA: Meses seguidos. ATUALIZANDO data final do vínculo existente.");
-            vinculo.setDataFim(converterCompetenciaParaDate(dados.getCompetencia(), true));
+            vinculo.setEndDate(converterCompetenciaParaDate(dados.getCompetencia(), true));
             projetoHasBolsistaService.salvar(vinculo);
 
         } else if (vinculoParaEstenderInicio.isPresent()) {
             // CENÁRIO 3: Apenas estende um vínculo para TRÁS (sua nova regra).
-            ProjetoHasBolsista vinculo = vinculoParaEstenderInicio.get();
+            ProjectScholarshipHolder vinculo = vinculoParaEstenderInicio.get();
             System.out.println(
                     "      [AÇÃO] -> CONDIÇÃO VERDADEIRA: Meses seguidos. ATUALIZANDO data início do vínculo existente.");
-            vinculo.setDataInicio(converterCompetenciaParaDate(dados.getCompetencia(), false));
+            vinculo.setStartDate(converterCompetenciaParaDate(dados.getCompetencia(), false));
             projetoHasBolsistaService.salvar(vinculo);
 
         } else {
@@ -337,24 +336,24 @@ public class BolsistaService {
         }
     }
 
-    private void criarNovoBolsistaComVinculo(ProjetoHasParceiro projeto, DadosPagamento dados) {
+    private void criarNovoBolsistaComVinculo(ProjectPartner projeto, DadosPagamento dados) {
         System.out.println("  [AÇÃO] -> Entrou em criarNovoBolsistaComVinculo.");
-        Bolsista novoBolsista = new Bolsista(dados.getNomeMembro());
+        ScholarshipHolder novoBolsista = new ScholarshipHolder(dados.getNomeMembro());
         if ("docente".equalsIgnoreCase(dados.getTipo())) {
-            novoBolsista.setDocente(true);
+            novoBolsista.setIsTeacher(true);
         } else {
-            novoBolsista.setDocente(false);
-            novoBolsista.setTipoSuperior(dados.getNivel());
+            novoBolsista.setIsTeacher(false);
+            novoBolsista.setEducationLevel(dados.getNivel());
         }
-        System.out.println("    [AÇÃO] Salvando novo registro de Bolsista para: " + novoBolsista.getNome());
+        System.out.println("    [AÇÃO] Salvando novo registro de ScholarshipHolder para: " + novoBolsista.getName());
         salvar(novoBolsista);
 
         criarNovoVinculo(novoBolsista, projeto, dados);
     }
 
-    private void criarNovoVinculo(Bolsista bolsista, ProjetoHasParceiro projeto, DadosPagamento dados) {
-        System.out.println("    [AÇÃO] -> Entrou em criarNovoVinculo para: " + bolsista.getNome());
-        ProjetoHasBolsistaId novoId = new ProjetoHasBolsistaId(projeto.getId(), bolsista.getId());
+    private void criarNovoVinculo(ScholarshipHolder bolsista, ProjectPartner projeto, DadosPagamento dados) {
+        System.out.println("    [AÇÃO] -> Entrou em criarNovoVinculo para: " + bolsista.getName());
+        ProjectScholarshipHolderId novoId = new ProjectScholarshipHolderId(projeto.getId(), bolsista.getId());
 
         Date dataInicio = converterCompetenciaParaDate(dados.getCompetencia(), false);
         Date dataFim = converterCompetenciaParaDate(dados.getCompetencia(), true);
@@ -364,7 +363,7 @@ public class BolsistaService {
         System.out.println("        - Data Fim: " + dataFim);
         System.out.println("        - Valor: " + dados.getValor());
 
-        ProjetoHasBolsista novoVinculo = new ProjetoHasBolsista(
+        ProjectScholarshipHolder novoVinculo = new ProjectScholarshipHolder(
                 novoId,
                 projeto,
                 bolsista,

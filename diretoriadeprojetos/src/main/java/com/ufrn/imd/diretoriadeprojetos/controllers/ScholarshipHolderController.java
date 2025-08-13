@@ -17,40 +17,40 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.BolsistaResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.ScholarshipHolder;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ScholarshipHolderResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
-import com.ufrn.imd.diretoriadeprojetos.services.BolsistaService;
+import com.ufrn.imd.diretoriadeprojetos.services.ScholarshipHolderService;
 
 @RestController
 @RequestMapping("/bolsistas")
-public class BolsistaController {
+public class ScholarshipHolderController {
 
     @Autowired
-    private BolsistaService bolsistaService;
+    private ScholarshipHolderService bolsistaService;
 
     @GetMapping
-    public List<BolsistaResponse> listarTodos() {
-        return bolsistaService.listarTodos();
+    public List<ScholarshipHolderResponse> listarTodos() {
+        return bolsistaService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Bolsista> buscarPorId(@PathVariable UUID id) {
+    public ResponseEntity<ScholarshipHolder> buscarPorId(@PathVariable UUID id) {
         return bolsistaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Bolsista> criar(@RequestBody Bolsista bolsista) {
-        Bolsista novo = bolsistaService.salvar(bolsista);
+    public ResponseEntity<ScholarshipHolder> criar(@RequestBody ScholarshipHolder bolsista) {
+        ScholarshipHolder novo = bolsistaService.salvar(bolsista);
         return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Bolsista> atualizar(@PathVariable UUID id, @RequestBody Bolsista bolsista) {
-        Bolsista atualizado = bolsistaService.atualizar(id, bolsista);
+    public ResponseEntity<ScholarshipHolder> atualizar(@PathVariable UUID id, @RequestBody ScholarshipHolder bolsista) {
+        ScholarshipHolder atualizado = bolsistaService.atualizar(id, bolsista);
         return ResponseEntity.ok(atualizado);
 
     }
@@ -62,11 +62,11 @@ public class BolsistaController {
     }
 
     @GetMapping("/{numeroSipac}/{anoSipac}")
-    public ResponseEntity<List<Bolsista>> findByProjeto(
+    public ResponseEntity<List<ScholarshipHolder>> findByProjeto(
             @PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
 
-        List<Bolsista> bolsistas = bolsistaService.findByProjeto(new ProjectId(numeroSipac, anoSipac));
+        List<ScholarshipHolder> bolsistas = bolsistaService.findByProjeto(new ProjectId(numeroSipac, anoSipac));
         return ResponseEntity.ok(bolsistas);
     }
 

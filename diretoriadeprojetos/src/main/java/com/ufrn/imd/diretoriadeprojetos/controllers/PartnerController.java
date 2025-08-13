@@ -15,44 +15,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Parceiro;
-import com.ufrn.imd.diretoriadeprojetos.services.ParceiroService;
+import com.ufrn.imd.diretoriadeprojetos.models.Partner;
+import com.ufrn.imd.diretoriadeprojetos.services.PartnerService;
 
 @RestController
 @RequestMapping("/parceiros")
-public class ParceiroController {
+public class PartnerController {
     @Autowired
-    private ParceiroService parceiroService;
+    private PartnerService partnerService;
 
     @GetMapping
     public List<ParceiroResponse> listar() {
-        return parceiroService.findAll();
+        return partnerService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Parceiro> buscarPorId(@PathVariable UUID id) {
-        return parceiroService.findById(id)
+    public ResponseEntity<Partner> findById(@PathVariable UUID id) {
+        return partnerService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Parceiro> create(@RequestBody Parceiro parceiro) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(parceiroService.save(parceiro));
+    public ResponseEntity<Partner> create(@RequestBody Partner partner) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(partnerService.save(partner));
     }
 
-    /*
-     * @PutMapping("/{id}")
-     * public ResponseEntity<Parceiro> update(@PathVariable UUID id, @RequestBody
-     * Parceiro parceiro) {
-     * 
-     * return ResponseEntity.ok(parceiroService.update(id, parceiro));
-     * 
-     * }
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        parceiroService.delete(id);
+        partnerService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

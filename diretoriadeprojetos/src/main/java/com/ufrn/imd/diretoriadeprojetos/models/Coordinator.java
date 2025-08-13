@@ -26,7 +26,7 @@ public class Coordinator {
     private String name;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "coordinator", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "coordenador", cascade = CascadeType.ALL)
     private List<Projeto> projects;
 
     private String email;

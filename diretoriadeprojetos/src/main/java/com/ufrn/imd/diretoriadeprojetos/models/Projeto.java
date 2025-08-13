@@ -43,8 +43,8 @@ public class Projeto {
     @JoinColumn(name = "coordenador_matricula", nullable = false)
     private Coordinator coordenador;
     @JsonManagedReference
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjetoHasParceiro> parceiros = new ArrayList<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectPartner> parceiros = new ArrayList<>();
 
     @Column(nullable = false)
     private Date dataFim;

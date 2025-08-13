@@ -1,16 +1,15 @@
 
 package com.ufrn.imd.diretoriadeprojetos.enums;
 
-public enum TipoFinanciamento {
-    PRIVADO,
-    PUBLICO;
+public enum FundingType {
+    PRIVATE,
+    PUBLIC;
 
-    public static TipoFinanciamento fromNome(String nomeEsfera) {
-        if (nomeEsfera == null) {
+    public static FundingType fromName(String sphereName) {
+        if (sphereName == null) {
             return null;
         }
-
-        String normalizedName = nomeEsfera.toUpperCase()
+        String normalizedName = sphereName.toUpperCase()
                 .replace("Á", "A")
                 .replace("É", "E")
                 .replace("Í", "I")
@@ -20,11 +19,12 @@ public enum TipoFinanciamento {
                 .replace("Õ", "O")
                 .replace("Ç", "C");
 
-        if (normalizedName.contains("PRIVADO")) {
-            return PRIVADO;
-        } else if (normalizedName.contains("PUBLICO")) {
-            return PUBLICO;
+        if (normalizedName.contains("PRIVATE")) {
+            return PRIVATE;
+        } else if (normalizedName.contains("PUBLIC")) {
+            return PUBLIC;
         }
+
         return null;
     }
 }

@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ufrn.imd.diretoriadeprojetos.models.Bolsista;
+import com.ufrn.imd.diretoriadeprojetos.models.ScholarshipHolder;
 
 @Repository
-public interface BolsistaRepository extends JpaRepository<Bolsista, UUID> {
-    Optional<Bolsista> findByNome(String nome);
+public interface ScholarshipHolderRepository extends JpaRepository<ScholarshipHolder, UUID> {
+    Optional<ScholarshipHolder> findByName(String nome);
 
 }

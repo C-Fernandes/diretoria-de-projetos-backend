@@ -6,15 +6,19 @@ import java.util.UUID;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
-@EqualsAndHashCode
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-public class ProjetoHasBolsistaId implements Serializable {
+@AllArgsConstructor
+@EqualsAndHashCode
+public class ProjectPartnerId implements Serializable {
 
-    private ProjetoParceiroId projetoParceiroId;
+    private ProjectId projectId;
 
-    private UUID bolsistaUuid;
+    private UUID partnerId;
 }
