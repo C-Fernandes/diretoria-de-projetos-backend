@@ -17,30 +17,30 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 
 import com.ufrn.imd.diretoriadeprojetos.annotations.IsUser;
-import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjectRequest;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjectResponse;
+import com.ufrn.imd.diretoriadeprojetos.models.Project;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
-import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
+import com.ufrn.imd.diretoriadeprojetos.services.ProjectService;
 
 @RestController
 @RequestMapping("/projetos")
-public class ProjetoController {
+public class ProjectController {
     @Autowired
-    private ProjetoService projetoService;
+    private ProjectService projetoService;
 
     @GetMapping
-    public List<ProjetoResponse> findAll() {
+    public List<ProjectResponse> findAll() {
         return projetoService.findAll();
     }
 
     @IsUser
     @GetMapping(params = "externo", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProjetoResponse> buscarNaApi(
+    public ResponseEntity<ProjectResponse> buscarNaApi(
             @RequestParam long numeroSipac,
             @RequestParam long anoSipac) {
 
-        ProjetoResponse fluxo = projetoService
+        ProjectResponse fluxo = projetoService
                 .buscarNaApi(numeroSipac, anoSipac);
 
         return ResponseEntity.ok(fluxo);
@@ -48,7 +48,7 @@ public class ProjetoController {
 
     @IsUser
     @DeleteMapping("/{numeroSipac}/{anoSipac}")
-    public ResponseEntity<List<ProjetoResponse>> delete(
+    public ResponseEntity<List<ProjectResponse>> delete(
             @PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
 
@@ -58,15 +58,15 @@ public class ProjetoController {
 
     @PostMapping
     @IsUser
-    public ResponseEntity<Projeto> criar(@RequestBody ProjetoRequest projeto) {
+    public ResponseEntity<Project> criar(@RequestBody ProjectRequest projeto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.salvar(projeto));
     }
 
     @GetMapping("/{numeroSipac}/{anoSipac}")
-    public ResponseEntity<ProjetoResponse> findById(
+    public ResponseEntity<ProjectResponse> findById(
             @PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
-        ProjetoResponse projeto = projetoService.findById(new ProjectId(numeroSipac, anoSipac));
+        ProjectResponse projeto = projetoService.findById(new ProjectId(numeroSipac, anoSipac));
         return ResponseEntity.ok(projeto);
     }
 

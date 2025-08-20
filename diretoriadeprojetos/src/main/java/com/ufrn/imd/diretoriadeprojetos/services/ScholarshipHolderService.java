@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ufrn.imd.diretoriadeprojetos.dtos.DadosPagamento;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ScholarshipHolderResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.ScholarshipHolder;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.Project;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjectPartner;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjectScholarshipHolder;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
@@ -165,7 +165,7 @@ public class ScholarshipHolderService {
     }
 
     private String pegarNumeroProjeto(CSVRecord csvRecord) {
-        String projetoCompleto = csvRecord.get("Projeto");
+        String projetoCompleto = csvRecord.get("Project");
 
         String numeroProjeto;
         if (projetoCompleto != null && !projetoCompleto.isEmpty()) {
@@ -216,15 +216,15 @@ public class ScholarshipHolderService {
                         .findByFunpecNumber(Long.parseLong(dados.getNumeroProjeto()));
 
                 if (!projetoOpt.isPresent()) {
-                    System.err.println("Projeto " + dados.getNumeroProjeto() + " não encontrado");
+                    System.err.println("Project " + dados.getNumeroProjeto() + " não encontrado");
                     continue;
                 } else {
-                    System.err.println("Projeto " + dados.getNumeroProjeto() + " encontrado");
+                    System.err.println("Project " + dados.getNumeroProjeto() + " encontrado");
 
                 }
                 ProjectPartner projeto = projetoOpt.get();
 
-                System.out.println("[DEBUG] Projeto encontrado: " + projeto.getProject().getTitulo());
+                System.out.println("[DEBUG] Project encontrado: " + projeto.getProject().getTitle());
                 System.out.println("[DEBUG] Buscando bolsista com nome: '" + dados.getNomeMembro() + "'");
                 Optional<ScholarshipHolder> bolsistaOpt = findByNome(dados.getNomeMembro());
                 if (dados.getNumeroRubrica() == 18 || dados.getNumeroRubrica() == 20) {
@@ -403,7 +403,7 @@ public class ScholarshipHolderService {
         DadosPagamento dados = new DadosPagamento();
 
         // --- Tratamento do NÚMERO DO PROJETO (já corrigido) ---
-        String projetoCompleto = csvRecord.get("Projeto");
+        String projetoCompleto = csvRecord.get("Project");
         String numeroProjeto = projetoCompleto;
         if (projetoCompleto != null && projetoCompleto.contains(" - ")) {
             numeroProjeto = projetoCompleto.split(" - ")[0].trim();

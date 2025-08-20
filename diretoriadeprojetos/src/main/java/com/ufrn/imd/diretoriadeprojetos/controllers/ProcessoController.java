@@ -19,14 +19,14 @@ import org.springframework.http.MediaType;
 
 import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProcessoMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProcessoRequest;
-import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjectRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProcessoResponse;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjectResponse;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjectProcess;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.Project;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.services.ProcessService;
-import com.ufrn.imd.diretoriadeprojetos.services.ProjetoService;
+import com.ufrn.imd.diretoriadeprojetos.services.ProjectService;
 
 @RestController
 @RequestMapping("/processos")
@@ -35,7 +35,7 @@ public class ProcessoController {
     private ProcessService processoService;
 
     @Autowired
-    private ProjetoService projetoService;
+    private ProjectService projectService;
 
     @Autowired
     private ProcessoMapper processoMapper;
@@ -66,7 +66,7 @@ public class ProcessoController {
     }
 
     @DeleteMapping("/{radical}/{numProtocolo}/{ano}/{dv}")
-    public ResponseEntity<List<ProjetoResponse>> delete(
+    public ResponseEntity<List<ProjectResponse>> delete(
             @PathVariable long radical,
             @PathVariable long numProtocolo, @PathVariable long ano, @PathVariable long dv) {
 
@@ -81,10 +81,10 @@ public class ProcessoController {
     }
 
     @PostMapping("/{numeroSipac}/{anoSipac}")
-    public ResponseEntity<ProjetoResponse> criarProjetoPorProcesso(@PathVariable long numeroSipac,
+    public ResponseEntity<ProjectResponse> criarProjetoPorProcesso(@PathVariable long numeroSipac,
             @PathVariable long anoSipac) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projetoService.salvarProjetoPorProcesso(numeroSipac, anoSipac));
+                .body(projectService.salvarProjetoPorProcesso(numeroSipac, anoSipac));
     }
 
     @GetMapping("/atualizarTodos")

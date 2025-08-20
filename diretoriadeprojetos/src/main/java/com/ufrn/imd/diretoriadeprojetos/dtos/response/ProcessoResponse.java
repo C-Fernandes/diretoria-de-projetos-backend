@@ -25,4 +25,6 @@ public class ProcessoResponse {
     private double valor;
     private List<Movement> movimentacoes;
 
+    private Boolean tramitando;
+
 }

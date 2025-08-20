@@ -23,5 +23,6 @@ public class ProcessoRequest {
     private Date dataInicio;
     private Coordinator coordenador;
     private double valor;
+    private Boolean tramitando;
 
 }

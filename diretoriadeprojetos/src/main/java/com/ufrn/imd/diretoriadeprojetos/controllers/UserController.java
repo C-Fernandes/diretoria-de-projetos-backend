@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imd.diretoriadeprojetos.annotations.IsAdmin;
-import com.ufrn.imd.diretoriadeprojetos.annotations.IsSelfOrAdmin;
 import com.ufrn.imd.diretoriadeprojetos.annotations.IsGuest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.LoginRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.RegisterRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.LoginResponse;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.UserResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.Role;
 import com.ufrn.imd.diretoriadeprojetos.models.User;

@@ -53,7 +53,7 @@ public class ProcessoMapper {
         processo.setAmount(processoRequest.getValor());
         processo.setProjectId(new ProjectId(processoRequest.getNumeroSipac(), processoRequest.getAnoSipac()));
         processo.setCoordinator(coordenador);
-
+        processo.setIsActive(processoRequest.getTramitando());
         return processo;
     }
 
@@ -84,7 +84,7 @@ public class ProcessoMapper {
             response.setNumeroSipac(processo.getProjectId().getSipacNumber());
         }
         response.setCoordenador(processo.getCoordinator());
-
+        response.setTramitando(processo.getIsActive());
         response.setMovimentacoes(processo.getMovements());
 
         return response;

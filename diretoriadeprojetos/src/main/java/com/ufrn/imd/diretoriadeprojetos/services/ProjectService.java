@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 
 import com.ufrn.imd.diretoriadeprojetos.clients.ProjectClient;
 import com.ufrn.imd.diretoriadeprojetos.clients.ResourceOriginClient;
-import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjetoMapper;
+import com.ufrn.imd.diretoriadeprojetos.dtos.mapper.ProjectMapper;
 import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoParceiroRequest;
-import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjetoRequest;
+import com.ufrn.imd.diretoriadeprojetos.dtos.request.ProjectRequest;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.OrigemRecursoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoApiResponse;
-import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjetoResponse;
+import com.ufrn.imd.diretoriadeprojetos.dtos.response.ProjectResponse;
 import com.ufrn.imd.diretoriadeprojetos.enums.FundingType;
 import com.ufrn.imd.diretoriadeprojetos.enums.FundingType;
 import com.ufrn.imd.diretoriadeprojetos.errors.EntityNotFound;
@@ -28,16 +28,16 @@ import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
 import com.ufrn.imd.diretoriadeprojetos.errors.ResourceConflict;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
 import com.ufrn.imd.diretoriadeprojetos.models.Partner;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.Project;
 import com.ufrn.imd.diretoriadeprojetos.models.ProjectPartner;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectPartnerId;
-import com.ufrn.imd.diretoriadeprojetos.repository.ProjetoRepository;
+import com.ufrn.imd.diretoriadeprojetos.repository.ProjectRepository;
 
 @Service
-public class ProjetoService {
+public class ProjectService {
     @Autowired
-    private ProjetoRepository projetoRepository;
+    private ProjectRepository projetoRepository;
 
     @Autowired
     private CoordinatorService coordenadorService;
@@ -46,47 +46,47 @@ public class ProjetoService {
     @Autowired
     private ProjectClient projectClient;
     @Autowired
-    private ProjetoMapper projetoMapper;
+    private ProjectMapper projetoMapper;
     @Autowired
     private ResourceOriginClient resourceOriginClient;
 
-    public List<ProjetoResponse> findAll() {
+    public List<ProjectResponse> findAll() {
         return projetoRepository.findAll().stream()
                 .map(projetoMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    public ProjetoResponse findById(ProjectId id) {
-        Projeto projeto = projetoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+    public ProjectResponse findById(ProjectId id) {
+        Project projeto = projetoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project não encontrado"));
         return projetoMapper.toResponse(projeto);
     }
 
-    public Projeto salvar(ProjetoRequest projetoDto) {
-        System.out.println("Projeto dto: " + projetoDto);
+    public Project salvar(ProjectRequest projetoDto) {
+        System.out.println("Project dto: " + projetoDto);
 
-        if (projetoDto.getNumeroSipac() <= 0) {
+        if (projetoDto.getSipacNumber() <= 0) {
             throw new MissingFields("O número SIPAC do projeto é obrigatório.");
         }
-        if (projetoDto.getAnoSipac() <= 0) {
+        if (projetoDto.getSipacYear() <= 0) {
             throw new MissingFields("O ano SIPAC do projeto é obrigatório.");
         }
-        if (projetoDto.getContaContrato() == null || projetoDto.getContaContrato().isBlank()) {
+        if (projetoDto.getContractAccount() == null || projetoDto.getContractAccount().isBlank()) {
             throw new MissingFields("Conta contrato é obrigatório.");
         }
-        if (projetoDto.getCoordenadorId() == null) {
+        if (projetoDto.getCoordinatorId() == null) {
             throw new MissingFields("Coordenador é obrigatório.");
         }
-        if (projetoDto.getParceirosId() == null || projetoDto.getParceirosId().isEmpty()) {
+        if (projetoDto.getPartnerIds() == null || projetoDto.getPartnerIds().isEmpty()) {
             throw new MissingFields("Pelo menos um parceiro é obrigatório.");
         }
-        Coordinator coordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
+        Coordinator coordenador = coordenadorService.findById(projetoDto.getCoordinatorId())
                 .orElseThrow(() -> new EntityNotFound("Coordenador não encontrado"));
 
-        Projeto projeto = projetoMapper.toEntity(projetoDto, coordenador);
+        Project projeto = projetoMapper.toEntity(projetoDto, coordenador);
 
         ProjectId projetoId = projeto.getId();
-        List<ProjectPartner> projetoParceiros = projetoDto.getParceirosId().stream().map(parceiroReq -> {
+        List<ProjectPartner> projetoParceiros = projetoDto.getPartnerIds().stream().map(parceiroReq -> {
 
             if (parceiroReq.getParceiroId() == null) {
                 throw new MissingFields("ID do Partner é obrigatório.");
@@ -106,17 +106,17 @@ public class ProjetoService {
             return projetoParceiro;
 
         }).collect(Collectors.toList());
-        projeto.setParceiros(projetoParceiros);
+        projeto.setPartners(projetoParceiros);
         return projetoRepository.save(projeto);
     }
 
-    public ProjetoResponse buscarNaApi(long numeroSipac, long anoSipac) {
+    public ProjectResponse buscarNaApi(long numeroSipac, long anoSipac) {
         ProjetoApiResponse projetos = projectClient.findByNumberAndYear(numeroSipac, anoSipac);
 
         return tratarProjeto(projetos);
     }
 
-    private ProjetoResponse tratarProjeto(ProjetoApiResponse projeto) {
+    private ProjectResponse tratarProjeto(ProjetoApiResponse projeto) {
         System.out.println("tratar projeto: " + projeto.toString());
         Coordinator coordenador = coordenadorService.findOrCreateBySiape(projeto.getSiapeCoordenador());
         List<Partner> parceiros = verificarEProcessarParceiros(
@@ -182,52 +182,52 @@ public class ProjetoService {
     }
 
     public void delete(long numeroSipac, long anoSipac) {
-        Projeto projetoParaDeletar = projetoRepository.findById(new ProjectId(numeroSipac, anoSipac))
+        Project projetoParaDeletar = projetoRepository.findById(new ProjectId(numeroSipac, anoSipac))
                 .orElseThrow(() -> new EntityNotFound("Projeto " + numeroSipac + "/" + anoSipac + " não encontrado."));
 
         projetoRepository.delete(projetoParaDeletar);
     }
 
-    public Projeto update(ProjectId id, ProjetoRequest projetoDto) {
-        Projeto projetoParaAtualizar = projetoRepository.findById(id)
+    public Project update(ProjectId id, ProjectRequest projetoDto) {
+        Project projetoParaAtualizar = projetoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFound("Projeto " + id.getSipacNumber() + "/" + id.getSipacYear()
                         + " não encontrado para atualização."));
 
         validarAlteracaoFunpecComBolsistas(projetoDto, projetoParaAtualizar);
 
-        if (projetoDto.getCoordenadorId() == null) {
+        if (projetoDto.getCoordinatorId() == null) {
             throw new MissingFields("Coordenador é obrigatório.");
         }
-        Coordinator novoCoordenador = coordenadorService.findById(projetoDto.getCoordenadorId())
+        Coordinator novoCoordenador = coordenadorService.findById(projetoDto.getCoordinatorId())
                 .orElseThrow(() -> new EntityNotFound(
-                        "Coordenador com ID " + projetoDto.getCoordenadorId() + " não encontrado."));
+                        "Coordenador com ID " + projetoDto.getCoordinatorId() + " não encontrado."));
 
-        projetoParaAtualizar.setTitulo(projetoDto.getTitulo());
-        projetoParaAtualizar.setDescricao(projetoDto.getDescricao());
-        projetoParaAtualizar.setContaContrato(projetoDto.getContaContrato());
-        projetoParaAtualizar.setValor(projetoDto.getValor());
-        projetoParaAtualizar.setDataInicio(projetoDto.getDataInicio());
-        projetoParaAtualizar.setDataFim(projetoDto.getDataFim());
+        projetoParaAtualizar.setTitle(projetoDto.getTitle());
+        projetoParaAtualizar.setDescription(projetoDto.getDescription());
+        projetoParaAtualizar.setContractAccount(projetoDto.getContractAccount());
+        projetoParaAtualizar.setValue(projetoDto.getValue());
+        projetoParaAtualizar.setStartDate(projetoDto.getStartDate());
+        projetoParaAtualizar.setEndDate(projetoDto.getEndDate());
         projetoParaAtualizar.setStatus(projetoDto.getStatus());
-        projetoParaAtualizar.setCategoria(projetoDto.getCategoria());
-        projetoParaAtualizar.setResidencia(projetoDto.isResidencia());
-        projetoParaAtualizar.setLeiDeInformatica(projetoDto.isLeiDeInformatica());
-        projetoParaAtualizar.setEmbrapii(projetoDto.isEmbrapii());
-        projetoParaAtualizar.setSebrae(projetoDto.isSebrae());
-        projetoParaAtualizar.setCoordenador(novoCoordenador);
+        projetoParaAtualizar.setCategory(projetoDto.getCategory());
+        projetoParaAtualizar.setIsResidency(projetoDto.isResidency());
+        projetoParaAtualizar.setIsInformaticLaw(projetoDto.isInformaticLaw());
+        projetoParaAtualizar.setIsEmbrapii(projetoDto.isEmbrapii());
+        projetoParaAtualizar.setIsSebrae(projetoDto.isSebrae());
+        projetoParaAtualizar.setCoordinator(novoCoordenador);
 
-        projetoParaAtualizar.getParceiros().clear();
+        projetoParaAtualizar.getPartners().clear();
 
-        if (projetoDto.getParceirosId() != null && !projetoDto.getParceirosId().isEmpty()) {
+        if (projetoDto.getPartnerIds() != null && !projetoDto.getPartnerIds().isEmpty()) {
             List<ProjectPartner> novosProjetoParceiros = prepararListaParceiros(projetoDto, projetoParaAtualizar);
-            projetoParaAtualizar.getParceiros().addAll(novosProjetoParceiros);
+            projetoParaAtualizar.getPartners().addAll(novosProjetoParceiros);
         }
 
         return projetoRepository.save(projetoParaAtualizar);
     }
 
-    private List<ProjectPartner> prepararListaParceiros(ProjetoRequest projetoDto, Projeto projeto) {
-        return projetoDto.getParceirosId().stream().map(parceiroReq -> {
+    private List<ProjectPartner> prepararListaParceiros(ProjectRequest projetoDto, Project projeto) {
+        return projetoDto.getPartnerIds().stream().map(parceiroReq -> {
             if (parceiroReq.getParceiroId() == null) {
                 throw new MissingFields("ID do Partner é obrigatório.");
             }
@@ -246,15 +246,15 @@ public class ProjetoService {
         }).collect(Collectors.toList());
     }
 
-    private void validarAlteracaoFunpecComBolsistas(ProjetoRequest projetoDto, Projeto projetoAtual) {
-        if (projetoDto.getParceirosId() == null || projetoDto.getParceirosId().isEmpty()) {
+    private void validarAlteracaoFunpecComBolsistas(ProjectRequest projetoDto, Project projetoAtual) {
+        if (projetoDto.getPartnerIds() == null || projetoDto.getPartnerIds().isEmpty()) {
             return;
         }
 
-        Map<UUID, ProjectPartner> parceirosAtuaisMap = projetoAtual.getParceiros().stream()
+        Map<UUID, ProjectPartner> parceirosAtuaisMap = projetoAtual.getPartners().stream()
                 .collect(Collectors.toMap(p -> p.getPartner().getId(), Function.identity()));
 
-        for (ProjetoParceiroRequest parceiroReq : projetoDto.getParceirosId()) {
+        for (ProjetoParceiroRequest parceiroReq : projetoDto.getPartnerIds()) {
             ProjectPartner parceiroAtual = parceirosAtuaisMap.get(parceiroReq.getParceiroId());
 
             if (parceiroAtual != null) {
@@ -277,9 +277,9 @@ public class ProjetoService {
         }
     }
 
-    public ProjetoResponse salvarProjetoPorProcesso(long numeroSipac, long anoSipac) {
-        ProjetoResponse projeto = buscarNaApi(numeroSipac, anoSipac);
-        ProjetoRequest projetoRequest = projetoMapper.toRequest(projeto);
+    public ProjectResponse salvarProjetoPorProcesso(long numeroSipac, long anoSipac) {
+        ProjectResponse projeto = buscarNaApi(numeroSipac, anoSipac);
+        ProjectRequest projetoRequest = projetoMapper.toRequest(projeto);
         return projetoMapper.toResponse(salvar(projetoRequest));
     }
 

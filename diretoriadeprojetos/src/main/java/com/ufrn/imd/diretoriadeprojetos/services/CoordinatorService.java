@@ -12,7 +12,7 @@ import com.ufrn.imd.diretoriadeprojetos.errors.MissingFields;
 import com.ufrn.imd.diretoriadeprojetos.errors.ResourceConflict;
 import com.ufrn.imd.diretoriadeprojetos.errors.UsedField;
 import com.ufrn.imd.diretoriadeprojetos.models.Coordinator;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
+import com.ufrn.imd.diretoriadeprojetos.models.Project;
 import com.ufrn.imd.diretoriadeprojetos.repository.CoordinatorRepository;
 
 import jakarta.persistence.EntityNotFoundException;

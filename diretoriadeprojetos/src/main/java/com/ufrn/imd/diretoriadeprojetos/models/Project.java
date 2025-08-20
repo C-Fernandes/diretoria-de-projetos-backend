@@ -22,46 +22,53 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Projeto {
+public class Project {
     @EmbeddedId
     private ProjectId id;
 
     @Column(unique = true)
-    private Long idProjeto = null;
+    private Long externalProjectId = null;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String descricao;
+    private String description;
 
-    private String titulo;
+    private String title;
+
     @Column(nullable = false)
-    private Boolean residencia = false, leiDeInformatica = false, embrapii = false, sebrae = false;
+    private Boolean isResidency = false, isInformaticLaw = false, isEmbrapii = false, isSebrae = false;
+
     @Column(nullable = false)
-    private double valor;
+    private double value;
+
     @Column(nullable = false)
-    private Date dataInicio;
+    private Date startDate;
+
     @ManyToOne
-    @JoinColumn(name = "coordenador_matricula", nullable = false)
-    private Coordinator coordenador;
+    @JoinColumn(name = "coordinator_siape", nullable = false) // Coluna de junção renomeada
+    private Coordinator coordinator;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectPartner> parceiros = new ArrayList<>();
+    private List<ProjectPartner> partners = new ArrayList<>(); // Variável renomeada
 
     @Column(nullable = false)
-    private Date dataFim;
-    @Column(nullable = false)
-    private String contaContrato;
+    private Date endDate;
 
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false)
+    private String contractAccount;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Aditivo> aditivos = new ArrayList<>();
+
     private String status;
 
-    private String categoria;
+    private String category;
 
-    public Projeto() {
+    public Project() {
         this.id = new ProjectId();
     }
 
-    public Projeto(long numeroSipac, long anoSipac) {
+    public Project(long numeroSipac, long anoSipac) {
         this.id = new ProjectId(numeroSipac, anoSipac);
     }
 }

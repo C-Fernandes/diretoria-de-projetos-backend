@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ufrn.imd.diretoriadeprojetos.models.ScholarshipHolder;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ScholarshipHolderResponse;
-import com.ufrn.imd.diretoriadeprojetos.models.Projeto;
 import com.ufrn.imd.diretoriadeprojetos.models.ids.ProjectId;
 import com.ufrn.imd.diretoriadeprojetos.services.ScholarshipHolderService;
 

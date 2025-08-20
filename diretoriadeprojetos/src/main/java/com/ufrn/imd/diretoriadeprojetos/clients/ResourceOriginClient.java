@@ -1,7 +1,5 @@
 package com.ufrn.imd.diretoriadeprojetos.clients;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ufrn.imd.diretoriadeprojetos.auth.AuthApiService;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.OrigemRecursoApiResponse;
 import com.ufrn.imd.diretoriadeprojetos.dtos.response.ParceiroApiResponse;
@@ -9,7 +7,6 @@ import com.ufrn.imd.diretoriadeprojetos.errors.AuthTokenException;
 import com.ufrn.imd.diretoriadeprojetos.errors.ClientException;
 import com.ufrn.imd.diretoriadeprojetos.models.AuthApiProperties;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;

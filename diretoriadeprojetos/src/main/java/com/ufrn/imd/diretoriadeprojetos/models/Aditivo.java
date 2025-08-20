@@ -29,5 +29,5 @@ public class Aditivo {
             @JoinColumn(name = "sipac_number", referencedColumnName = "sipac_number"),
             @JoinColumn(name = "sipac_year", referencedColumnName = "sipac_year")
     })
-    private Projeto projeto;
+    private Project project;
 }

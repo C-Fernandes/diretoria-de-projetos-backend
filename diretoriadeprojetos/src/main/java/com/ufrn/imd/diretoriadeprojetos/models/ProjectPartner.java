@@ -30,7 +30,7 @@ public class ProjectPartner {
             @JoinColumn(name = "sipac_year", referencedColumnName = "sipac_year")
     })
     @JsonBackReference
-    private Projeto project;
+    private Project project;
 
     @ManyToOne
     @MapsId("partnerId")
